@@ -70,7 +70,7 @@ public class TestNameTestDirectoryProvider implements MethodRule, TestRule, Test
             Files.delete(path);
             return;
         }
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
             for (Path file: stream) {
                 deleteRecursively(file);
             }

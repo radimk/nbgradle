@@ -26,6 +26,11 @@ repositories {
     maven { url 'http://repo.gradle.org/gradle/libs-releases-local' }
 }
 
+compileJava {
+//   options.compilerArgs = ['-s', "$project.buildDir/src/main/generated-sources"]
+    options.compilerArgs = ['-sourcepath', "$project.projectDir/src/main/resources"]
+}
+
 version = '1.0'
 nbm {
     moduleName = 'org.nbgradle.netbeans.core'
@@ -72,6 +77,7 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.5'
     compile 'org.gradle:gradle-tooling-api:1.12'
 
+    testCompile 'org.netbeans.modules:org-netbeans-modules-masterfs:RELEASE80'
     testCompile 'org.netbeans.api:org-netbeans-modules-nbjunit:RELEASE80'
     testCompile 'org.netbeans.modules:org-netbeans-insane:RELEASE80'
     testCompile 'org.netbeans.api:org-netbeans-libs-junit4:RELEASE80'
