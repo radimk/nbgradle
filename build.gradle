@@ -1,1 +1,56 @@
+apply plugin: 'idea'
+
+task downloadGradle(type: DownloadTask) {
+    sourceUrl = 'https://services.gradle.org/distributions/gradle-1.12-all.zip'
+    target = file('gradle-1.12-all.zip')
+}
+task unzipGradle(type: Copy) {
+    inputs.file downloadGradle.target
+    def zipFile = downloadGradle.target // file('src/dists/dist.zip')
+    def outputDir = file('unpacked/gradle-dist')
+
+    from zipTree(zipFile)
+    into outputDir
+}
+
+unzipGradle.dependsOn downloadGradle
+
+idea {
+    project {
+        wildcards += ['?*.gradle']
+
+        languageLevel = '1.7'
+    }
+
+    workspace.iws.withXml { provider ->
+        Node node = provider.asNode()
+
+        Node runManagerConfig = node.component.find { it.'@name' == 'RunManager' }
+
+        // Add int test configuration to JUnit defaults
+        Node runConfig = runManagerConfig.configuration.find { it.'@type' == 'JUnit' }
+        Node vmParameters = runConfig.option.find { it.'@name' == 'VM_PARAMETERS' }
+
+        def defaultTestVmParams = [
+                "-DintegTest.gradleHomeDir=${file('unpacked/gradle-dist').absolutePath}",
+                "-ea",
+                "-XX:MaxPermSize=512m",
+                "-Xmx512m"
+        ]
+        vmParameters.'@value' = defaultTestVmParams.collect { it.contains(" ") ? "\"$it\"" : it }.join(" ")
+    }
+}
+
+class DownloadTask extends DefaultTask {
+    @Input
+    String sourceUrl
+
+    @OutputFile
+    File target
+
+    @TaskAction
+    void download() {
+        ant.get(src: sourceUrl, dest: target)
+    }
+}
 

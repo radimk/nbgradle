@@ -14,13 +14,16 @@ buildscript {
     }
 }
 apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: 'nbm'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 repositories {
     mavenCentral()
-    maven {
-        url 'http://bits.netbeans.org/maven2/'
-    }
+    maven { url 'http://bits.netbeans.org/maven2/' }
+    maven { url 'http://repo.gradle.org/gradle/libs-releases-local' }
 }
 
 version = '1.0'
@@ -36,15 +39,52 @@ nbm {
 }
 
 dependencies {
-    // compile 'org.netbeans.api:org-openide-awt:RELEASE74'
-    compile 'org.netbeans.api:org-openide-util:RELEASE80'
     compile 'org.netbeans.api:org-netbeans-api-annotations-common:RELEASE80'
-    // example of dependency that will be copied to modules/ext and added to ClassPath: attribute in MANIFEST.MF
-    compile 'org.slf4j:slf4j-api:1.7.2'
+//    compile 'org.netbeans.api:org-netbeans-api-debugger:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-api-debugger-jpda:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-api-java:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-api-java-classpath:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-api-progress:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-core-multiview:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-modules-editor-indent-project:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-modules-java-platform:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-modules-java-project:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-modules-java-source:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-options-api:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-projectapi:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-projectuiapi:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-queries:RELEASE80'
+    compile 'org.netbeans.api:org-openide-actions:RELEASE80'
+    compile 'org.netbeans.api:org-openide-awt:RELEASE80'
+    compile 'org.netbeans.api:org-openide-dialogs:RELEASE80'
+    compile 'org.netbeans.api:org-openide-filesystems:RELEASE80'
+    compile 'org.netbeans.api:org-openide-io:RELEASE80'
+    compile 'org.netbeans.api:org-openide-loaders:RELEASE80'
+    compile 'org.netbeans.api:org-openide-modules:RELEASE80'
+    compile 'org.netbeans.api:org-openide-nodes:RELEASE80'
+    compile 'org.netbeans.api:org-openide-text:RELEASE80'
+    compile 'org.netbeans.api:org-openide-util:RELEASE80'
+    compile 'org.netbeans.api:org-openide-util-lookup:RELEASE80'
+    compile 'org.netbeans.api:org-openide-windows:RELEASE80'
+//    compile 'org.netbeans.modules:org-netbeans-modules-gsf-testrunner:RELEASE80'
+//    compile 'org.netbeans.api:org-netbeans-libs-javacapi:RELEASE80'
+    // compile files(project.file('src/main/resources'))
+    compile 'org.slf4j:slf4j-api:1.7.5'
+    compile 'org.gradle:gradle-tooling-api:1.12'
+
+    testCompile 'org.netbeans.api:org-netbeans-modules-nbjunit:RELEASE80'
+    testCompile 'org.netbeans.modules:org-netbeans-insane:RELEASE80'
+    testCompile 'org.netbeans.api:org-netbeans-libs-junit4:RELEASE80'
+    testCompile 'junit:junit:4.10'
+    testCompile 'com.google.guava:guava:17.0'
+    testCompile 'org.mockito:mockito-core:1.9.5'
+}
+
+test {
+    systemProperty 'integTest.gradleHomeDir', rootProject.file('unpacked/gradle-dist').absolutePath
 }
 
 // set netbeansInstallDir project property
-
 task netBeansRun(type: Exec) {
     doFirst {
         if (!project.hasProperty('netBeansInstallDir')) {
