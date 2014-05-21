@@ -35,10 +35,8 @@ JavadocForBinaryQueryImplementation
 AccessibilityQueryImplementation
 MultipleRootsUnitTestForSourceQueryImplementation
 ProjectXmlSavedHook
-AntArtifactProvider
 SearchInfo
 BinaryForSourceQueryImplementation
-AntBuildExtender
 CreateFromTemplateAttributesProvider
      */
     def 'ProjectInformation'() {

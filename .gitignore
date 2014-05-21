@@ -4,3 +4,7 @@ build/
 nbgradle.i??
 unpacked
 gradle-1.12-all.zip
+/.nb-gradle/private/
+/.nb-gradle-properties
+/.nb-gradle/
+
