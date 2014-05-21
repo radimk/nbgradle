@@ -14,6 +14,7 @@ buildscript {
     }
 }
 apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'nbm'
 
@@ -77,6 +78,9 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.5'
     compile 'org.gradle:gradle-tooling-api:1.12'
 
+    testCompile 'org.codehaus.groovy:groovy-all:2.2.0'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    testCompile 'cglib:cglib-nodep:2.2.2'
     testCompile 'org.netbeans.modules:org-netbeans-modules-masterfs:RELEASE80'
     testCompile 'org.netbeans.api:org-netbeans-modules-nbjunit:RELEASE80'
     testCompile 'org.netbeans.modules:org-netbeans-insane:RELEASE80'
