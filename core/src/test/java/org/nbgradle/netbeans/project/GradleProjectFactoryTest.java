@@ -4,6 +4,8 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import org.junit.Rule;
 import org.junit.Test;
+import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
+import org.nbgradle.netbeans.project.model.GradleBuildSettings;
 import org.nbgradle.test.fixtures.Sample;
 import org.nbgradle.test.fixtures.TestNameTestDirectoryProvider;
 import org.nbgradle.test.fixtures.UsesSample;
@@ -33,10 +35,16 @@ public class GradleProjectFactoryTest {
     @Test
     @UsesSample("java/quickstart")
     public void quickstart() throws IOException {
-        assertTrue(Files.isDirectory(temporaryFolder.getTestDirectory()));
         FileObject prjDir = FileUtil.toFileObject(FileUtil.normalizeFile(sample.getDir().toFile()));
         assertNotNull(prjDir);
         Project project = ProjectManager.getDefault().findProject(prjDir);
-        assertNotNull("Find a project in " + prjDir, project);
+        assertNull("Not yet a project in " + prjDir, project);
+
+        GradleBuildSettings buildSettings = new DefaultGradleBuildSettings();
+        GradleProjectImporter importer = new GradleProjectImporter();
+        importer.importProject(buildSettings, sample.getDir().toFile());
+        ProjectManager.getDefault().clearNonProjectCache();
+        project = ProjectManager.getDefault().findProject(prjDir);
+        assertNull("Project in " + prjDir, project);
     }
 }

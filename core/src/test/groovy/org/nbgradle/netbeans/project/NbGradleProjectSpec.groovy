@@ -5,7 +5,7 @@ import org.netbeans.api.project.ProjectInformation
 import org.openide.filesystems.FileObject
 import spock.lang.Specification
 
-class NbGradleProjectSpec extends Specification {
+class NbGradleProjectSpec extends AbstractProjectSpec {
 
     /*
 The following abilities are recommended:
@@ -40,9 +40,6 @@ BinaryForSourceQueryImplementation
 CreateFromTemplateAttributesProvider
      */
     def 'ProjectInformation'() {
-        FileObject prjDir = Mock(FileObject)
-        _ * prjDir.nameExt >> 'name'
-
         when:
         Project prj = new NbGradleProject(prjDir)
         def pi = prj.lookup.lookup(org.netbeans.api.project.ProjectInformation)
