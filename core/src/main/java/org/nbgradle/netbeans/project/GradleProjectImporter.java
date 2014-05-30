@@ -53,11 +53,10 @@ public class GradleProjectImporter {
         NbGradleBuildJAXB buildJaxb = new NbGradleBuildJAXB();
         buildJaxb.setRootProject(createProjectJAXB(project));
         buildJaxb.setDistribution(distributionSpec);
-        try (OutputStream outputStream = byteSink.openStream();) {
+        try (OutputStream outputStream = byteSink.openStream()) {
             JAXBContext context = JAXBContext.newInstance(NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            // Write to File
             m.marshal(buildJaxb, outputStream);
         } catch (JAXBException | IOException e) {
             throw new ProjectImportException("Cannot store project metadata.", e);

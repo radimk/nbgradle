@@ -72,6 +72,7 @@ dependencies {
     compile 'org.netbeans.api:org-openide-util:RELEASE80'
     compile 'org.netbeans.api:org-openide-util-lookup:RELEASE80'
     compile 'org.netbeans.api:org-openide-windows:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-xml-jaxb-api:RELEASE80'
 //    compile 'org.netbeans.modules:org-netbeans-modules-gsf-testrunner:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-libs-javacapi:RELEASE80'
     // compile files(project.file('src/main/resources'))
