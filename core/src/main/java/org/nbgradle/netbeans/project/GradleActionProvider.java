@@ -1,9 +1,21 @@
 package org.nbgradle.netbeans.project;
 
+import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.spi.project.ActionProvider;
+import org.netbeans.spi.project.LookupProvider;
+import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.util.Lookup;
+import org.openide.util.Parameters;
 
 public class GradleActionProvider implements ActionProvider {
+    @ProjectServiceProvider(
+            service=ActionProvider.class,
+            projectTypes={@LookupProvider.Registration.ProjectType(id=NbGradleConstants.PROJECT_TYPE, position=1000)})
+    public static ActionProvider create(@NonNull final Lookup lkp) {
+        Parameters.notNull("lkp", lkp);
+        return new GradleActionProvider();
+    }
+
     @Override
     public String[] getSupportedActions() {
         return new String[] {

@@ -5,6 +5,7 @@ import org.gradle.jarjar.com.google.common.base.Preconditions;
 import org.nbgradle.netbeans.project.lookup.GradleProjectInformation;
 import org.nbgradle.netbeans.project.model.GradleBuildSettings;
 import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
@@ -15,7 +16,7 @@ import java.io.InputStream;
 
 public class NbGradleProject implements Project {
     private final FileObject projectDirectory;
-    private final Lookup lookup;
+    private /*final*/ Lookup lookup;
 
     public NbGradleProject(FileObject projectDirectory) {
         this.projectDirectory = Preconditions.checkNotNull(projectDirectory);
@@ -31,10 +32,12 @@ public class NbGradleProject implements Project {
             }
         };
         GradleBuildSettings buildSettings = new GradleProjectImporter().readBuildSettings(settingsByteSource);
-        return Lookups.fixed(
+        Lookup base = Lookups.fixed(
                 buildSettings,
                 new GradleProjectInformation(this),
-                new GradleActionProvider());
+                LookupProviderSupport.createActionProviderMerger());
+        lookup = base; // a workaround for merged lookups calling Project.getLookup too early
+        return LookupProviderSupport.createCompositeLookup(base, "Projects/" + NbGradleConstants.PROJECT_TYPE + "/Lookup");
     }
 
     @Override
