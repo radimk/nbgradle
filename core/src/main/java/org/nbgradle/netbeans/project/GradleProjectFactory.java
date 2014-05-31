@@ -7,6 +7,7 @@ import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectFactory2;
 import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.ImageUtilities;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class GradleProjectFactory implements ProjectFactory2 {
         if (!isProject(projectDirectory)) {
             return null;
         }
-        return new NbGradleProject(projectDirectory);
+        return new NbGradleProject(projectDirectory, FileUtil.toFile(projectDirectory));
     }
 
     @Override

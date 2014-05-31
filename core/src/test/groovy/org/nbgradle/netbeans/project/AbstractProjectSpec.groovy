@@ -11,6 +11,7 @@ import spock.lang.Specification
 
 class AbstractProjectSpec extends Specification {
     protected FileObject prjDir
+    protected File projectDir
 
     def setup() {
         BasicGradleProject gradleProject = Mock(BasicGradleProject)
@@ -29,5 +30,7 @@ class AbstractProjectSpec extends Specification {
         _ * prjDir.nameExt >> 'name'
         _ * prjDir.getFileObject(NbGradleConstants.NBGRADLE_BUILD_XML) >> settingsXml
         _ * settingsXml.inputStream >> fbos.asByteSource().openStream()
+
+        projectDir = Mock(File)
     }
 }

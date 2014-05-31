@@ -1,5 +1,15 @@
 package org.nbgradle.netbeans.project;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import org.gradle.tooling.model.Task;
+import org.gradle.tooling.model.gradle.BasicGradleProject;
+import org.gradle.tooling.model.gradle.BuildInvocations;
+import org.gradle.tooling.model.gradle.GradleBuild;
+import org.nbgradle.netbeans.project.lookup.GradleModelSupplier;
+import org.nbgradle.netbeans.project.lookup.GradleProjectInformation;
+import org.nbgradle.netbeans.project.model.GradleBuildSettings;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.LookupProvider;
@@ -7,13 +17,27 @@ import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class GradleActionProvider implements ActionProvider {
+    private static final Logger LOGGER = Logger.getLogger(GradleActionProvider.class.getName());
+
     @ProjectServiceProvider(
             service=ActionProvider.class,
             projectTypes={@LookupProvider.Registration.ProjectType(id=NbGradleConstants.PROJECT_TYPE, position=1000)})
     public static ActionProvider create(@NonNull final Lookup lkp) {
         Parameters.notNull("lkp", lkp);
-        return new GradleActionProvider();
+        GradleProjectInformation information = lkp.lookup(GradleProjectInformation.class);
+        return new GradleActionProvider(information.getProjectPath(), lkp.lookup(GradleModelSupplier.class));
+    }
+
+    private final String projectPath;
+    private final GradleModelSupplier modelSupplier;
+
+    public GradleActionProvider(String projectPath, GradleModelSupplier modelSupplier) {
+        this.projectPath = Preconditions.checkNotNull(projectPath);
+        this.modelSupplier = Preconditions.checkNotNull(modelSupplier);
     }
 
     @Override
@@ -40,6 +64,24 @@ public class GradleActionProvider implements ActionProvider {
 
     @Override
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
+        LOGGER.log(Level.FINE, "isActionEnabled {0}", command);
+        BuildInvocations tasks = modelSupplier.getModel(BuildInvocations.class);
+        if (tasks == null) {
+            return false;
+        }
+        // TODO utility to find project
+        if (COMMAND_BUILD.equals(command) && Iterables.any(tasks.getTasks(), matchesTaskName(projectPath, "build"))) {
+            return true;
+        }
         return false;
+    }
+
+    Predicate<Task> matchesTaskName(final String projectPath, final String taskName) {
+        return new Predicate<Task>() {
+            @Override
+            public boolean apply(Task input) {
+                return input.getPath().equals((":".equals(projectPath) ? ":" : projectPath + ":") + taskName);
+            }
+        };
     }
 }

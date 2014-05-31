@@ -1,6 +1,7 @@
 package org.nbgradle.netbeans.project
 
 import org.junit.Rule
+import org.nbgradle.netbeans.project.lookup.GradleModelSupplier
 import org.nbgradle.netbeans.project.model.DefaultDistributionSpec
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings
 import org.nbgradle.netbeans.project.model.DistributionSpec
@@ -29,5 +30,6 @@ class NbGradleProjectIntegrationSpec extends AbstractIntegrationSpec {
         project != null
         def prjBuildSettings = project.lookup.lookup(GradleBuildSettings)
         prjBuildSettings != null
+        project.lookup.lookup(GradleModelSupplier) != null
     }
 }

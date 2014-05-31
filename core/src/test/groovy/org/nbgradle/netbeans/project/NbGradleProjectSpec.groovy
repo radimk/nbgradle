@@ -41,7 +41,7 @@ CreateFromTemplateAttributesProvider
      */
     def 'ProjectInformation'() {
         when:
-        Project prj = new NbGradleProject(prjDir)
+        Project prj = new NbGradleProject(prjDir, projectDir)
         def pi = prj.lookup.lookup(org.netbeans.api.project.ProjectInformation)
 
         then:

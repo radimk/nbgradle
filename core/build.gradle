@@ -109,5 +109,5 @@ task netBeansRun(type: Exec) {
     workingDir "${project.buildDir}"
 
     //on windows:
-    commandLine netBeansInstallDir + '/bin/netbeans', '--userdir', "$project.buildDir/testuserdir"
+    commandLine netBeansInstallDir + '/bin/netbeans', '--userdir', "$project.buildDir/testuserdir", "-J-Dorg.nbgradle.netbeans.level=500"
 }
