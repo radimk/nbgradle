@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 class DefaultGradleModelSupplierSpec extends Specification {
     def 'first get initiates loading'() {
-        def modelLoader = Mock(GradleModelLoader)
+        def modelLoader = Mock(GradleToolingRunner)
         def modelSupplier = new DefaultGradleModelSupplier(modelLoader)
         def buildModel = Mock(GradleBuild)
 

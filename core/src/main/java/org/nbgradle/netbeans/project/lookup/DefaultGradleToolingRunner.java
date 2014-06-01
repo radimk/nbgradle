@@ -3,20 +3,19 @@ package org.nbgradle.netbeans.project.lookup;
 import com.google.common.base.Preconditions;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
-import org.gradle.tooling.model.gradle.GradleBuild;
 import org.nbgradle.netbeans.project.model.GradleBuildSettings;
 
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DefaultGradleModelLoader implements GradleModelLoader {
-    private static final Logger LOGGER = Logger.getLogger(DefaultGradleModelLoader.class.getName());
+public class DefaultGradleToolingRunner implements GradleToolingRunner {
+    private static final Logger LOGGER = Logger.getLogger(DefaultGradleToolingRunner.class.getName());
 
     private final GradleBuildSettings buildSettings;
     private final File projectDir;
 
-    public DefaultGradleModelLoader(GradleBuildSettings buildSettings, File projectDir) {
+    public DefaultGradleToolingRunner(GradleBuildSettings buildSettings, File projectDir) {
         this.buildSettings = Preconditions.checkNotNull(buildSettings);
         this.projectDir = Preconditions.checkNotNull(projectDir);
     }

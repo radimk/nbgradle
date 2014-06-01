@@ -21,10 +21,10 @@ public class DefaultGradleModelSupplier implements GradleModelSupplier {
     private static final Executor EXECUTOR = Executors.newCachedThreadPool();
     private static final Model NOT_YET_LOADED_MODEL = new Model() {};
 
-    private final GradleModelLoader modelLoader;
+    private final GradleToolingRunner modelLoader;
     private final LoadingCache<Class<?>, Object> modelsCache;
 
-    public DefaultGradleModelSupplier(GradleModelLoader modelLoader) {
+    public DefaultGradleModelSupplier(GradleToolingRunner modelLoader) {
         this.modelLoader = Preconditions.checkNotNull(modelLoader);
         modelsCache = CacheBuilder.newBuilder()
                 .build(new CacheLoader<Class<?>, Object>() {

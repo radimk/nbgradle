@@ -2,16 +2,14 @@ package org.nbgradle.netbeans.project;
 
 import com.google.common.io.ByteSource;
 import org.gradle.jarjar.com.google.common.base.Preconditions;
-import org.nbgradle.netbeans.project.lookup.DefaultGradleModelLoader;
+import org.nbgradle.netbeans.project.lookup.DefaultGradleToolingRunner;
 import org.nbgradle.netbeans.project.lookup.DefaultGradleModelSupplier;
 import org.nbgradle.netbeans.project.lookup.DefaultGradleProjectInformation;
-import org.nbgradle.netbeans.project.lookup.GradleModelLoader;
-import org.nbgradle.netbeans.project.lookup.GradleProjectInformation;
+import org.nbgradle.netbeans.project.lookup.GradleToolingRunner;
 import org.nbgradle.netbeans.project.model.GradleBuildSettings;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
@@ -39,7 +37,7 @@ public class NbGradleProject implements Project {
             }
         };
         GradleBuildSettings buildSettings = new GradleProjectImporter().readBuildSettings(settingsByteSource);
-        GradleModelLoader modelLoader = new DefaultGradleModelLoader(buildSettings, projectDir);
+        GradleToolingRunner modelLoader = new DefaultGradleToolingRunner(buildSettings, projectDir);
         Lookup base = Lookups.fixed(
                 buildSettings,
                 new DefaultGradleProjectInformation(this, ":"),
