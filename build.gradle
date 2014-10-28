@@ -1,8 +1,8 @@
 apply plugin: 'idea'
 
 task downloadGradle(type: DownloadTask) {
-    sourceUrl = 'https://services.gradle.org/distributions/gradle-1.12-all.zip'
-    target = file('gradle-1.12-all.zip')
+    sourceUrl = 'https://services.gradle.org/distributions/gradle-2.2-rc-1-all.zip'
+    target = file('gradle-2.2-rc-1-all.zip')
 }
 task unzipGradle(type: Copy) {
     inputs.file downloadGradle.target
@@ -14,6 +14,10 @@ task unzipGradle(type: Copy) {
 }
 
 unzipGradle.dependsOn downloadGradle
+
+task testSetup(type: DefaultTask) {
+    dependsOn 'unzipGradle'
+}
 
 idea {
     project {

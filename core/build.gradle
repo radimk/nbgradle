@@ -26,6 +26,8 @@ compileJava {
     options.compilerArgs = ['-sourcepath', "$project.projectDir/src/main/resources"]
 }
 
+test.dependsOn tasks.findByPath(':testSetup')
+
 version = '1.0'
 nbm {
     moduleName = 'org.nbgradle.netbeans.core'
