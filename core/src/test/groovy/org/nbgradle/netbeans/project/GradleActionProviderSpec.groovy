@@ -4,6 +4,7 @@ import org.gradle.tooling.model.DomainObjectSet
 import org.gradle.tooling.model.Task
 import org.gradle.tooling.model.gradle.BuildInvocations
 import org.nbgradle.netbeans.project.lookup.GradleModelSupplier
+import org.nbgradle.netbeans.project.lookup.GradleToolingRunner
 import org.netbeans.api.project.Project
 import org.netbeans.spi.project.ActionProvider
 import org.openide.util.Lookup
@@ -23,7 +24,8 @@ class GradleActionProviderSpec extends AbstractProjectSpec {
 
     def 'enabling'() {
         GradleModelSupplier modelSupplier = Mock(GradleModelSupplier)
-        def actionProvider = new GradleActionProvider(":", modelSupplier)
+        GradleToolingRunner toolingRunner = Mock(GradleToolingRunner)
+        def actionProvider = new GradleActionProvider(":", modelSupplier, toolingRunner)
         def emptyBuild = Mock(BuildInvocations)
         def aBuild = Mock(BuildInvocations)
         def tasks = Mock(DomainObjectSet)
