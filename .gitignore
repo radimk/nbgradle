@@ -4,6 +4,7 @@ build/
 nbgradle.i??
 unpacked
 gradle-*-all.zip
+netbeans-*.zip
 /.nb-gradle/private/
 /.nb-gradle-properties
 /.nb-gradle/

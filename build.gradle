@@ -19,6 +19,25 @@ task testSetup(type: DefaultTask) {
     dependsOn 'unzipGradle'
 }
 
+task downloadNetBeans(type: DownloadTask) {
+    sourceUrl = 'http://dlc.sun.com.edgesuite.net/netbeans/8.0/final/zip/netbeans-8.0-201403101706.zip'
+    target = file('netbeans-8.0.zip')
+}
+task unzipNetBeans(type: Copy) {
+    inputs.file downloadNetBeans.target
+    def zipFile = downloadNetBeans.target
+    def outputDir = file('unpacked/netbeans')
+
+    from zipTree(zipFile)
+    into outputDir
+}
+
+unzipNetBeans.dependsOn downloadNetBeans
+
+task runSetup(type: DefaultTask) {
+    dependsOn 'unzipNetBeans'
+}
+
 idea {
     project {
         wildcards += ['?*.gradle']
