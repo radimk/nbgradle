@@ -3,12 +3,12 @@ package org.nbgradle.netbeans.project;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.gradleware.tooling.eclipse.core.models.GradleRunner;
+import com.gradleware.tooling.eclipse.core.models.ModelProvider;
 import org.gradle.api.Nullable;
 import org.gradle.tooling.model.Task;
 import org.gradle.tooling.model.gradle.BuildInvocations;
-import org.nbgradle.netbeans.project.lookup.GradleModelSupplier;
 import org.nbgradle.netbeans.project.lookup.GradleProjectInformation;
-import org.nbgradle.netbeans.project.lookup.GradleToolingRunner;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.LookupProvider;
@@ -17,6 +17,7 @@ import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,15 +32,15 @@ public class GradleActionProvider implements ActionProvider {
         GradleProjectInformation information = lkp.lookup(GradleProjectInformation.class);
         return new GradleActionProvider(
                 information.getProjectPath(),
-                lkp.lookup(GradleModelSupplier.class),
-                lkp.lookup(GradleToolingRunner.class));
+                lkp.lookup(ModelProvider.class),
+                lkp.lookup(GradleRunner.class));
     }
 
     private final String projectPath;
-    private final GradleModelSupplier modelSupplier;
-    private final GradleToolingRunner toolingRunner;
+    private final ModelProvider modelSupplier;
+    private final GradleRunner toolingRunner;
 
-    public GradleActionProvider(String projectPath, GradleModelSupplier modelSupplier, GradleToolingRunner toolingRunner) {
+    public GradleActionProvider(String projectPath, ModelProvider modelSupplier, GradleRunner toolingRunner) {
         this.projectPath = Preconditions.checkNotNull(projectPath);
         this.modelSupplier = Preconditions.checkNotNull(modelSupplier);
         this.toolingRunner = Preconditions.checkNotNull(toolingRunner);
@@ -80,7 +81,14 @@ public class GradleActionProvider implements ActionProvider {
 
     @Nullable
     Iterable<String> taskNames(String command, Lookup context) {
-        BuildInvocations tasks = modelSupplier.getModel(BuildInvocations.class);
+        BuildInvocations tasks = null;
+        try {
+            tasks = modelSupplier.getModel(BuildInvocations.class).get();
+        } catch (InterruptedException e) {
+            LOGGER.log(Level.FINE, "cannot load tasks", e);
+        } catch (ExecutionException e) {
+            LOGGER.log(Level.FINE, "cannot load tasks", e);
+        }
         if (tasks == null) {
             return null;
         }

@@ -63,9 +63,8 @@ public class GradleBuildWrapper {
                     @Override
                     public ModelProvider load(BuildKey key) throws Exception {
                         GradleIdeConnector connector = new GradleIdeConnector(key.buildSettings, key.projectDir);
-                        return new DefaultModelProvider(
-                                connector,
-                                key.operationCustomizer);
+                        GradleRunner runner = new DefaultGradleToolingRunner(connector, key.operationCustomizer);
+                        return new DefaultModelProvider(runner);
                     }
                 });
     }

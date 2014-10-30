@@ -1,8 +1,8 @@
 package org.nbgradle.netbeans.project
 
 import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings
+import com.gradleware.tooling.eclipse.core.models.ModelProvider
 import org.junit.Rule
-import org.nbgradle.netbeans.project.lookup.GradleModelSupplier
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings
 import org.nbgradle.test.fixtures.AbstractIntegrationSpec
 import org.nbgradle.test.fixtures.Sample
@@ -27,6 +27,6 @@ class NbGradleProjectIntegrationSpec extends AbstractIntegrationSpec {
         project != null
         def prjBuildSettings = project.lookup.lookup(GradleBuildSettings)
         prjBuildSettings != null
-        project.lookup.lookup(GradleModelSupplier) != null
+        project.lookup.lookup(ModelProvider) != null
     }
 }

@@ -1,30 +1,24 @@
 package com.gradleware.tooling.eclipse.core.models;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
-import org.gradle.tooling.ModelBuilder;
-import org.gradle.tooling.ProjectConnection;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import java.util.concurrent.ExecutionException;
 
-import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class DefaultModelProviderTest {
 
-    GradleIdeConnector connector;
-    GradleOperationCustomizer operationCustomizer;
+    GradleRunner runner;
     DefaultModelProvider modelProvider;
     
     @Before
     public void setup() {
-        connector = mock(GradleIdeConnector.class);
-        operationCustomizer = mock(GradleOperationCustomizer.class);
-        modelProvider = new DefaultModelProvider(connector, operationCustomizer);
+        runner = mock(GradleRunner.class);
+        modelProvider = new DefaultModelProvider(runner);
     }
 
     @Test
@@ -34,69 +28,44 @@ public class DefaultModelProviderTest {
 
     @Test
     public void returnModelFromProvider() throws Exception {
-        ProjectConnection conn = mock(ProjectConnection.class);
-        ModelBuilder<EclipseProject> builder = mock(ModelBuilder.class); 
         EclipseProject model = mock(EclipseProject.class);
-        when(connector.getConnection()).thenReturn(conn);
-        when(conn.model(EclipseProject.class)).thenReturn(builder);
-        when(builder.get()).thenReturn(model);
+        when(runner.getModel(EclipseProject.class)).thenReturn(model);
 
         ListenableFuture<EclipseProject> futureProject = modelProvider.getModel(EclipseProject.class);
         assertNotNull(futureProject);
         assertSame(model, futureProject.get());
-        verify(operationCustomizer).execute(builder);
-        verify(builder).get();
-        verify(operationCustomizer).close();
     }
 
     @Test
     public void loadedModelReturnedFromCache() throws Exception {
-        ProjectConnection conn = mock(ProjectConnection.class);
-        ModelBuilder<EclipseProject> builder = mock(ModelBuilder.class); 
         EclipseProject model = mock(EclipseProject.class);
-        when(connector.getConnection()).thenReturn(conn);
-        when(conn.model(EclipseProject.class)).thenReturn(builder);
-        when(builder.get()).thenReturn(model);
+        when(runner.getModel(EclipseProject.class)).thenReturn(model);
 
-        ListenableFuture<EclipseProject> futureProject = modelProvider.getModel(EclipseProject.class);
-        futureProject.get();
+        modelProvider.getModel(EclipseProject.class).get();
 
         EclipseProject project = modelProvider.getModelIfLoaded(EclipseProject.class);
         assertSame(model, project);
-        verify(operationCustomizer).execute(builder);
-        verify(builder).get();
-        verify(operationCustomizer).close();
+        verify(runner, times(1)).getModel(EclipseProject.class);
     }
 
     @Test
     public void secondLoadReturnedFromCache() throws Exception {
-        ProjectConnection conn = mock(ProjectConnection.class);
-        ModelBuilder<EclipseProject> builder = mock(ModelBuilder.class); 
         EclipseProject model = mock(EclipseProject.class);
-        when(connector.getConnection()).thenReturn(conn);
-        when(conn.model(EclipseProject.class)).thenReturn(builder);
-        when(builder.get()).thenReturn(model);
+        when(runner.getModel(EclipseProject.class)).thenReturn(model);
 
         ListenableFuture<EclipseProject> futureProject = modelProvider.getModel(EclipseProject.class);
         futureProject.get();
 
         ListenableFuture<EclipseProject> futureProject2 = modelProvider.getModel(EclipseProject.class);
         assertSame(model, futureProject2.get());
-        verify(operationCustomizer).execute(builder);
-        verify(builder).get();
-        verify(operationCustomizer).close();
+        verify(runner, times(1)).getModel(EclipseProject.class);
     }
 
     @Test
     public void propagatesExceptionModelFromProvider() throws Exception {
-        ProjectConnection conn = mock(ProjectConnection.class);
-        ModelBuilder<EclipseProject> builder = mock(ModelBuilder.class); 
-        // EclipseProject model = mock(EclipseProject.class);
+        EclipseProject model = mock(EclipseProject.class);
         RuntimeException ex = new RuntimeException("testing");
-        when(connector.getConnection()).thenReturn(conn);
-        when(conn.model(EclipseProject.class)).thenReturn(builder);
-        when(builder.get()).thenThrow(ex);
-        doThrow(new IOException("Pretend the stream is closed.")).when(operationCustomizer).close();
+        when(runner.getModel(EclipseProject.class)).thenThrow(ex);
 
         ListenableFuture<EclipseProject> futureProject = modelProvider.getModel(EclipseProject.class);
         assertNotNull(futureProject);
@@ -106,8 +75,6 @@ public class DefaultModelProviderTest {
             assertTrue(e instanceof ExecutionException);
             assertSame(ex, e.getCause().getCause());
         }
-        verify(operationCustomizer).execute(builder);
-        verify(builder).get();
-        verify(operationCustomizer).close();
+        verify(runner, times(1)).getModel(EclipseProject.class);
     }
 }

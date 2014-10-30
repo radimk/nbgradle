@@ -7,7 +7,7 @@ import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector;
 
-public class GradleIdeConnector {
+public class GradleIdeConnector implements IdeConnector {
     private final GradleBuildSettings buildSettings;
     private final File projectDir;
 

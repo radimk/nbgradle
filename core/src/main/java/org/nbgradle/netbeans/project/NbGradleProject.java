@@ -1,12 +1,10 @@
 package org.nbgradle.netbeans.project;
 
 import com.google.common.io.ByteSource;
-import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings;
+import com.gradleware.tooling.eclipse.core.models.*;
 import org.gradle.jarjar.com.google.common.base.Preconditions;
-import org.nbgradle.netbeans.project.lookup.DefaultGradleToolingRunner;
-import org.nbgradle.netbeans.project.lookup.DefaultGradleModelSupplier;
 import org.nbgradle.netbeans.project.lookup.DefaultGradleProjectInformation;
-import org.nbgradle.netbeans.project.lookup.GradleToolingRunner;
+import org.nbgradle.netbeans.project.lookup.NbGradleOperationCustomizer;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.openide.filesystems.FileObject;
@@ -37,12 +35,14 @@ public class NbGradleProject implements Project {
             }
         };
         GradleBuildSettings buildSettings = new GradleProjectImporter().readBuildSettings(settingsByteSource);
-        GradleToolingRunner toolingRunner = new DefaultGradleToolingRunner(buildSettings, projectDir);
+        GradleIdeConnector connector = new GradleIdeConnector(buildSettings, projectDir);
+        GradleRunner runner = new DefaultGradleToolingRunner(connector, new NbGradleOperationCustomizer());
+        ModelProvider modelProvider = new DefaultModelProvider(runner);
         Lookup base = Lookups.fixed(
                 buildSettings,
                 new DefaultGradleProjectInformation(this, ":"),
-                toolingRunner,
-                new DefaultGradleModelSupplier(toolingRunner),
+                runner,
+                modelProvider,
                 LookupProviderSupport.createActionProviderMerger());
         lookup = base; // a workaround for merged lookups calling Project.getLookup too early
         return LookupProviderSupport.createCompositeLookup(base, "Projects/" + NbGradleConstants.PROJECT_TYPE + "/Lookup");

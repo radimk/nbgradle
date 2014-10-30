@@ -85,6 +85,7 @@ dependencies {
     testCompile 'org.netbeans.api:org-netbeans-libs-junit4:RELEASE80'
     testCompile 'junit:junit:4.10'
     testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile 'org.gradle:integ-test-helpers:0.2.0-rc.4'
 }
 
 test {

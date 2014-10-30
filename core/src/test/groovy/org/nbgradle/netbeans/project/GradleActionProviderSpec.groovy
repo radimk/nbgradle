@@ -1,10 +1,12 @@
 package org.nbgradle.netbeans.project
 
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
+import com.gradleware.tooling.eclipse.core.models.GradleRunner
+import com.gradleware.tooling.eclipse.core.models.ModelProvider
 import org.gradle.tooling.model.DomainObjectSet
 import org.gradle.tooling.model.Task
 import org.gradle.tooling.model.gradle.BuildInvocations
-import org.nbgradle.netbeans.project.lookup.GradleModelSupplier
-import org.nbgradle.netbeans.project.lookup.GradleToolingRunner
 import org.netbeans.api.project.Project
 import org.netbeans.spi.project.ActionProvider
 import org.openide.util.Lookup
@@ -23,23 +25,24 @@ class GradleActionProviderSpec extends AbstractProjectSpec {
     }
 
     def 'enabling'() {
-        GradleModelSupplier modelSupplier = Mock(GradleModelSupplier)
-        GradleToolingRunner toolingRunner = Mock(GradleToolingRunner)
+        ModelProvider modelSupplier = Mock(ModelProvider)
+        GradleRunner toolingRunner = Mock(GradleRunner)
         def actionProvider = new GradleActionProvider(":", modelSupplier, toolingRunner)
         def emptyBuild = Mock(BuildInvocations)
         def aBuild = Mock(BuildInvocations)
         def tasks = Mock(DomainObjectSet)
         def buildTask = Mock(Task)
+        ListenableFuture<BuildInvocations> modelFuture = Futures.immediateFuture(null)
 
         when:
-        2 * modelSupplier.getModel(BuildInvocations) >> null
+        2 * modelSupplier.getModel(BuildInvocations) >> modelFuture
 
         then:
         !actionProvider.isActionEnabled(ActionProvider.COMMAND_BUILD, Lookup.EMPTY)
         !actionProvider.isActionEnabled(ActionProvider.COMMAND_CLEAN, Lookup.EMPTY)
 
         when:
-        2 * modelSupplier.getModel(BuildInvocations) >> emptyBuild
+        2 * modelSupplier.getModel(BuildInvocations) >> Futures.immediateFuture(emptyBuild)
         _ * emptyBuild.tasks >> tasks
         1 * tasks.iterator() >> [].iterator()
 
@@ -48,7 +51,7 @@ class GradleActionProviderSpec extends AbstractProjectSpec {
         !actionProvider.isActionEnabled(ActionProvider.COMMAND_CLEAN, Lookup.EMPTY)
 
         when:
-        1 * modelSupplier.getModel(BuildInvocations) >> aBuild
+        1 * modelSupplier.getModel(BuildInvocations) >> Futures.immediateFuture(aBuild)
         1 * aBuild.tasks >> tasks
         1 * tasks.iterator() >> [buildTask].iterator()
         _ * buildTask.path >> ":build"
