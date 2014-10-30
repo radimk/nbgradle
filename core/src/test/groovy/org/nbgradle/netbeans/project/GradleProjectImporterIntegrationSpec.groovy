@@ -1,9 +1,11 @@
 package org.nbgradle.netbeans.project
 
+import com.gradleware.tooling.eclipse.core.models.DistributionSpec
+import com.gradleware.tooling.eclipse.core.models.DistributionSpecs
+import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings
 import org.junit.Rule
-import org.nbgradle.netbeans.project.model.DefaultDistributionSpec
-import org.nbgradle.netbeans.project.model.DistributionSpec
-import org.nbgradle.netbeans.project.model.GradleBuildSettings
+import org.nbgradle.netbeans.project.model.DistributionSettings
+import org.nbgradle.netbeans.project.model.NbGradleBuildSettings
 import org.nbgradle.netbeans.project.model.VersionDistributionSpec
 import org.nbgradle.test.fixtures.AbstractIntegrationSpec
 import org.nbgradle.test.fixtures.Sample
@@ -14,8 +16,8 @@ class GradleProjectImporterIntegrationSpec extends AbstractIntegrationSpec {
 
     @UsesSample("java/quickstart")
     def "simple project"() {
-        DistributionSpec distribution = new DefaultDistributionSpec()
-        GradleBuildSettings buildSettings = Mock(GradleBuildSettings)
+        DistributionSpec distribution = DistributionSpecs.defaultDistribution()
+        NbGradleBuildSettings buildSettings = Mock(NbGradleBuildSettings)
         _ * buildSettings.distributionSpec >> distribution
         _ * buildSettings.gradleUserHomeDir >> null
 
@@ -33,9 +35,11 @@ class GradleProjectImporterIntegrationSpec extends AbstractIntegrationSpec {
 
     @UsesSample("java/quickstart")
     def "simple project imported using gradle version"() {
-        DistributionSpec distribution = new VersionDistributionSpec()
-        distribution.version = '1.11'
-        GradleBuildSettings buildSettings = Mock(GradleBuildSettings)
+        DistributionSettings distroSettings = new VersionDistributionSpec()
+        distroSettings.version = '1.11'
+        DistributionSpec distribution = DistributionSpecs.versionDistribution('1.11')
+        NbGradleBuildSettings buildSettings = Mock(NbGradleBuildSettings)
+        _ * buildSettings.distributionSettings >> distroSettings
         _ * buildSettings.distributionSpec >> distribution
         _ * buildSettings.gradleUserHomeDir >> null
 

@@ -40,7 +40,12 @@ public class GradleProjectFactory implements ProjectFactory2 {
         if (!isProject(projectDirectory)) {
             return null;
         }
-        return new NbGradleProject(projectDirectory, FileUtil.toFile(projectDirectory));
+        try {
+            return new NbGradleProject(projectDirectory, FileUtil.toFile(projectDirectory));
+        } catch (ProjectImportException pie) {
+            LOG.log(Level.FINE, "Cannot load project.", pie);
+            return null;
+        }
     }
 
     @Override

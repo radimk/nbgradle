@@ -117,6 +117,10 @@ public class TestNameTestDirectoryProvider implements MethodRule, TestRule, Test
             }
             for (int counter = 1; true; counter++) {
                 dir = root.resolve(counter == 1 ? prefix : String.format("%s%d", prefix, counter));
+                if (Files.isDirectory(dir)) {
+                    // try another one
+                    continue;
+                }
                 try {
                     Files.createDirectories(dir);
                     break;

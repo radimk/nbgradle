@@ -1,13 +1,14 @@
 package org.nbgradle.netbeans.project.model;
 
-import org.gradle.tooling.GradleConnector;
+import com.gradleware.tooling.eclipse.core.models.DistributionSpec;
+import com.gradleware.tooling.eclipse.core.models.DistributionSpecs;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "defaultDistribution")
-public class DefaultDistributionSpec extends DistributionSpec {
+public class DefaultDistributionSpec extends DistributionSettings {
     @Override
-    public void process(GradleConnector connector) {
-        // no-op
+    public DistributionSpec toSpec() {
+        return DistributionSpecs.defaultDistribution();
     }
 }

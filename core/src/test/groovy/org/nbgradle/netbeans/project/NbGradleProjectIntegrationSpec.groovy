@@ -1,12 +1,9 @@
 package org.nbgradle.netbeans.project
 
+import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings
 import org.junit.Rule
 import org.nbgradle.netbeans.project.lookup.GradleModelSupplier
-import org.nbgradle.netbeans.project.model.DefaultDistributionSpec
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings
-import org.nbgradle.netbeans.project.model.DistributionSpec
-import org.nbgradle.netbeans.project.model.GradleBuildSettings
-import org.nbgradle.netbeans.project.model.VersionDistributionSpec
 import org.nbgradle.test.fixtures.AbstractIntegrationSpec
 import org.nbgradle.test.fixtures.Sample
 import org.nbgradle.test.fixtures.UsesSample

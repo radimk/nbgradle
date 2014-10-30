@@ -1,11 +1,12 @@
 package org.nbgradle.netbeans.project.model;
 
-import org.gradle.tooling.GradleConnector;
+import com.gradleware.tooling.eclipse.core.models.DistributionSpec;
+import com.gradleware.tooling.eclipse.core.models.DistributionSpecs;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "versionDistribution")
-public class VersionDistributionSpec extends DistributionSpec {
+public class VersionDistributionSpec extends DistributionSettings {
     private String version;
 
     public String getVersion() {
@@ -17,7 +18,7 @@ public class VersionDistributionSpec extends DistributionSpec {
     }
 
     @Override
-    public void process(GradleConnector connector) {
-        connector.useGradleVersion(version);
+    public DistributionSpec toSpec() {
+        return DistributionSpecs.versionDistribution(version);
     }
 }

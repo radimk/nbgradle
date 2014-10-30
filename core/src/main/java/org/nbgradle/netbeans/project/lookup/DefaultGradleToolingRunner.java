@@ -1,10 +1,11 @@
 package org.nbgradle.netbeans.project.lookup;
 
 import com.google.common.base.Preconditions;
+import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings;
+import com.gradleware.tooling.eclipse.core.models.GradleIdeConnector;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
-import org.nbgradle.netbeans.project.model.GradleBuildSettings;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -15,23 +16,19 @@ public class DefaultGradleToolingRunner implements GradleToolingRunner {
 
     private final GradleBuildSettings buildSettings;
     private final File projectDir;
+    private final GradleIdeConnector connector;
 
-    private ProjectConnection connection;
+    private volatile ProjectConnection connection;
 
     public DefaultGradleToolingRunner(GradleBuildSettings buildSettings, File projectDir) {
         this.buildSettings = Preconditions.checkNotNull(buildSettings);
         this.projectDir = Preconditions.checkNotNull(projectDir);
+        connector = new GradleIdeConnector(buildSettings, projectDir);
     }
 
     private void initConnection() {
         if (connection == null) {
-            GradleConnector connector = GradleConnector.newConnector()
-                    .forProjectDirectory(projectDir);
-            buildSettings.getDistributionSpec().process(connector);
-            if (buildSettings.getGradleUserHomeDir() != null) {
-                connector.useGradleUserHomeDir(buildSettings.getGradleUserHomeDir());
-            }
-            ProjectConnection connection = connector.connect();
+            connection = connector.getConnection();
         }
     }
 

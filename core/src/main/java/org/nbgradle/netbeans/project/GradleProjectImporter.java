@@ -3,31 +3,25 @@ package org.nbgradle.netbeans.project;
 import com.google.common.io.ByteSink;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
+import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
-import org.nbgradle.netbeans.project.model.DefaultDistributionSpec;
-import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
-import org.nbgradle.netbeans.project.model.DistributionSpec;
-import org.nbgradle.netbeans.project.model.GradleBuildSettings;
-import org.nbgradle.netbeans.project.model.NbGradleBuildJAXB;
-import org.nbgradle.netbeans.project.model.NbGradleProjectJAXB;
-import org.nbgradle.netbeans.project.model.VersionDistributionSpec;
+import org.nbgradle.netbeans.project.model.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class GradleProjectImporter {
 
-    public void importProject(GradleBuildSettings gradleBuildSettings, File projectDir) {
+    public void importProject(NbGradleBuildSettings gradleBuildSettings, File projectDir) {
         GradleConnector connector = GradleConnector.newConnector()
                 .forProjectDirectory(projectDir);
         gradleBuildSettings.getDistributionSpec().process(connector);
@@ -45,14 +39,14 @@ public class GradleProjectImporter {
         }
         writeProjectSettings(
                 gradleBuild.getRootProject(),
-                gradleBuildSettings.getDistributionSpec(),
+                gradleBuildSettings.getDistributionSettings(),
                 Files.asByteSink(new File(projectDir, NbGradleConstants.NBGRADLE_BUILD_XML)));
     }
 
-    void writeProjectSettings(BasicGradleProject project, DistributionSpec distributionSpec, ByteSink byteSink) {
+    void writeProjectSettings(BasicGradleProject project, DistributionSettings distributionSettings, ByteSink byteSink) {
         NbGradleBuildJAXB buildJaxb = new NbGradleBuildJAXB();
         buildJaxb.setRootProject(createProjectJAXB(project));
-        buildJaxb.setDistribution(distributionSpec);
+        buildJaxb.setDistribution(distributionSettings);
         try (OutputStream outputStream = byteSink.openStream()) {
             JAXBContext context = JAXBContext.newInstance(NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
             Marshaller m = context.createMarshaller();
@@ -73,15 +67,16 @@ public class GradleProjectImporter {
     }
 
     public GradleBuildSettings readBuildSettings(ByteSource byteSource) {
-        try (InputStream is = byteSource.openStream();) {
+        try (InputStream is = byteSource.openStream()) {
             JAXBContext context = JAXBContext.newInstance(NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
             Unmarshaller um = context.createUnmarshaller();
             NbGradleBuildJAXB build = (NbGradleBuildJAXB) um.unmarshal(is);
             DefaultGradleBuildSettings settings = new DefaultGradleBuildSettings();
-            settings.setDistributionSpec(build.getDistribution());
+            settings.setDistributionSettings(build.getDistribution());
+            // TODO how to return project path/name?
             return settings;
         } catch (JAXBException | IOException e) {
-            throw new ProjectImportException("Cannot store project metadata.", e);
+            throw new ProjectImportException("Cannot read project metadata.", e);
         }
     }
 }
