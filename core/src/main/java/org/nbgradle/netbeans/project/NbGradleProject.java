@@ -5,6 +5,7 @@ import com.gradleware.tooling.eclipse.core.models.*;
 import org.gradle.jarjar.com.google.common.base.Preconditions;
 import org.nbgradle.netbeans.project.lookup.DefaultGradleProjectInformation;
 import org.nbgradle.netbeans.project.lookup.NbGradleOperationCustomizer;
+import org.nbgradle.netbeans.project.ui.GradleLogicalViewProvider;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.openide.filesystems.FileObject;
@@ -43,6 +44,7 @@ public class NbGradleProject implements Project {
                 new DefaultGradleProjectInformation(this, ":"),
                 runner,
                 modelProvider,
+                new GradleLogicalViewProvider(this),
                 LookupProviderSupport.createActionProviderMerger());
         lookup = base; // a workaround for merged lookups calling Project.getLookup too early
         return LookupProviderSupport.createCompositeLookup(base, "Projects/" + NbGradleConstants.PROJECT_TYPE + "/Lookup");
