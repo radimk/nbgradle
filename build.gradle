@@ -5,12 +5,11 @@ task downloadGradle(type: DownloadTask) {
     target = file('gradle-2.2-rc-1-all.zip')
 }
 task unzipGradle(type: Copy) {
-    inputs.file downloadGradle.target
-    def zipFile = downloadGradle.target // file('src/dists/dist.zip')
-    def outputDir = file('unpacked/gradle-dist')
+    def zipFile = downloadGradle.target
+    destinationDir = file('unpacked/gradle-dist')
 
     from zipTree(zipFile)
-    into outputDir
+    into destinationDir
 }
 
 unzipGradle.dependsOn downloadGradle
@@ -24,12 +23,11 @@ task downloadNetBeans(type: DownloadTask) {
     target = file('netbeans-8.0.zip')
 }
 task unzipNetBeans(type: Copy) {
-    inputs.file downloadNetBeans.target
     def zipFile = downloadNetBeans.target
-    def outputDir = file('unpacked/netbeans')
+    destinationDir = file('unpacked/netbeans')
 
     from zipTree(zipFile)
-    into outputDir
+    into destinationDir
 }
 
 unzipNetBeans.dependsOn downloadNetBeans
