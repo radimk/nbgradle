@@ -3,9 +3,7 @@ package org.nbgradle.netbeans.project;
 import com.google.common.collect.Iterables;
 import com.gradleware.tooling.eclipse.core.models.GradleRunner;
 import org.gradle.api.Action;
-import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.ResultHandler;
+import org.gradle.tooling.*;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 
@@ -28,8 +26,14 @@ public class NbGradleBuildRunner implements Action<GradleLaunchSpec> {
     @Override
     public void execute(GradleLaunchSpec gradleLaunchSpec) {
         LOGGER.log(Level.INFO, "Starting Gradle build: {0}", gradleLaunchSpec.getTaskNames());
-        final ProgressHandle progress = ProgressHandleFactory.createHandle(gradleLaunchSpec.getDescription());
+        final BuildProgressMonitor progress = gradleLaunchSpec.createProgressMonitor();
         BuildLauncher buildLauncher = toolingRunner.newBuild().forTasks(Iterables.toArray(gradleLaunchSpec.getTaskNames(), String.class));
+        buildLauncher.addProgressListener(new ProgressListener() {
+            @Override
+            public void statusChanged(ProgressEvent event) {
+                progress.statusChanged(event);
+            }
+        });
         progress.start();
 
         buildLauncher.run(new ResultHandler<Void>() {

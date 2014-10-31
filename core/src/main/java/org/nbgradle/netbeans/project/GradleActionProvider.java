@@ -6,10 +6,13 @@ import com.google.common.collect.Iterables;
 import com.gradleware.tooling.eclipse.core.models.GradleRunner;
 import com.gradleware.tooling.eclipse.core.models.ModelProvider;
 import org.gradle.api.Nullable;
+import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.model.Task;
 import org.gradle.tooling.model.gradle.BuildInvocations;
 import org.nbgradle.netbeans.project.lookup.GradleProjectInformation;
 import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.LookupProvider;
 import org.netbeans.spi.project.ProjectServiceProvider;
@@ -17,7 +20,6 @@ import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,17 +73,7 @@ public class GradleActionProvider implements ActionProvider {
             LOGGER.log(Level.FINE, "invokeAction with no task to run {0}", command);
             return;
         }
-        new NbGradleBuildRunner(toolingRunner).execute(new GradleLaunchSpec() {
-            @Override
-            public String getDescription() {
-                return "Project build";
-            }
-
-            @Override
-            public Iterable<String> getTaskNames() {
-                return taskNames;
-            }
-        });
+        new NbGradleBuildRunner(toolingRunner).execute(new NbGradleLaunchSpec(taskNames));
     }
 
     @Override
@@ -117,5 +109,42 @@ public class GradleActionProvider implements ActionProvider {
                 return input.getPath().equals((":".equals(projectPath) ? ":" : projectPath + ":") + taskName);
             }
         };
+    }
+
+    private class NbGradleLaunchSpec implements GradleLaunchSpec {
+        private final Iterable<String> taskNames;
+
+        public NbGradleLaunchSpec(Iterable<String> taskNames) {
+            this.taskNames = taskNames;
+        }
+
+        @Override
+        public BuildProgressMonitor createProgressMonitor() {
+            return new NbBuildProgressMonitor();
+        }
+
+        @Override
+        public Iterable<String> getTaskNames() {
+            return taskNames;
+        }
+    }
+
+    private class NbBuildProgressMonitor implements BuildProgressMonitor {
+        private final ProgressHandle progress = ProgressHandleFactory.createHandle("Project " + projectInfo.getName() + ": BUILD");
+
+        @Override
+        public void start() {
+            progress.start();
+        }
+
+        @Override
+        public void statusChanged(ProgressEvent event) {
+            progress.progress(event.getDescription());
+        }
+
+        @Override
+        public void finish() {
+            progress.finish();
+        }
     }
 }

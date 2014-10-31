@@ -1,11 +1,7 @@
 package org.nbgradle.netbeans.project;
 
-import java.util.List;
-
-/**
- * Created by radim on 10/31/14.
- */
+// TODO candidate to be moved to models
 public interface GradleLaunchSpec {
-    String getDescription();
+    BuildProgressMonitor createProgressMonitor();
     Iterable<String> getTaskNames();
 }
