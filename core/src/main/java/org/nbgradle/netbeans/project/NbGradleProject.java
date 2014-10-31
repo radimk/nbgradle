@@ -15,8 +15,12 @@ import org.openide.util.lookup.Lookups;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class NbGradleProject implements Project {
+    private static final Logger LOG = Logger.getLogger(NbGradleProject.class.getName());
+
     private final FileObject projectDirectory;
     private final File projectDir;
     private /*final*/ Lookup lookup;
@@ -25,6 +29,7 @@ public class NbGradleProject implements Project {
         this.projectDirectory = Preconditions.checkNotNull(projectDirectory);
         this.projectDir = Preconditions.checkNotNull(projectDir);
         lookup = createLookup(projectDirectory);
+        LOG.log(Level.FINE, "Created Gradle project for {0}", projectDir.getAbsolutePath());
     }
 
     private Lookup createLookup(final FileObject projectDirectory) {
@@ -46,7 +51,7 @@ public class NbGradleProject implements Project {
                 modelProvider,
                 new GradleLogicalViewProvider(this),
                 LookupProviderSupport.createActionProviderMerger());
-        lookup = base; // a workaround for merged lookups calling Project.getLookup too early
+        // lookup = base; // a workaround for merged lookups calling Project.getLookup too early
         return LookupProviderSupport.createCompositeLookup(base, "Projects/" + NbGradleConstants.PROJECT_TYPE + "/Lookup");
     }
 

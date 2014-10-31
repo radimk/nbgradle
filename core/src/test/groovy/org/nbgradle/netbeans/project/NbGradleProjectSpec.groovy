@@ -2,6 +2,7 @@ package org.nbgradle.netbeans.project
 
 import org.netbeans.api.project.Project
 import org.netbeans.api.project.ProjectInformation
+import org.netbeans.spi.project.ui.LogicalViewProvider
 import org.openide.filesystems.FileObject
 import spock.lang.Specification
 
@@ -48,5 +49,20 @@ CreateFromTemplateAttributesProvider
         pi != null
         pi.project == prj
         pi.name == 'name'
+    }
+
+    def 'logical view provider'() {
+        when:
+        Project prj = new NbGradleProject(prjDir, projectDir)
+        def viewProvider = prj.lookup.lookup(LogicalViewProvider)
+
+        then:
+        viewProvider != null
+
+        when:
+        def node = viewProvider.createLogicalView()
+
+        then:
+        node != null
     }
 }
