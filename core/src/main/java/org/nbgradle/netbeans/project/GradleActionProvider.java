@@ -17,6 +17,7 @@ import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,17 +32,17 @@ public class GradleActionProvider implements ActionProvider {
         Parameters.notNull("lkp", lkp);
         GradleProjectInformation information = lkp.lookup(GradleProjectInformation.class);
         return new GradleActionProvider(
-                information.getProjectPath(),
+                information,
                 lkp.lookup(ModelProvider.class),
                 lkp.lookup(GradleRunner.class));
     }
 
-    private final String projectPath;
+    private final GradleProjectInformation projectInfo;
     private final ModelProvider modelSupplier;
     private final GradleRunner toolingRunner;
 
-    public GradleActionProvider(String projectPath, ModelProvider modelSupplier, GradleRunner toolingRunner) {
-        this.projectPath = Preconditions.checkNotNull(projectPath);
+    public GradleActionProvider(GradleProjectInformation projectInfo, ModelProvider modelSupplier, GradleRunner toolingRunner) {
+        this.projectInfo = Preconditions.checkNotNull(projectInfo);
         this.modelSupplier = Preconditions.checkNotNull(modelSupplier);
         this.toolingRunner = Preconditions.checkNotNull(toolingRunner);
     }
@@ -65,12 +66,22 @@ public class GradleActionProvider implements ActionProvider {
 
     @Override
     public void invokeAction(String command, Lookup context) throws IllegalArgumentException {
-        Iterable<String> taskNames = taskNames(command, context);
+        final Iterable<String> taskNames = taskNames(command, context);
         if (taskNames == null) {
             LOGGER.log(Level.FINE, "invokeAction with no task to run {0}", command);
             return;
         }
-        toolingRunner.newBuild().forTasks(Iterables.toArray(taskNames, String.class)).run();
+        new NbGradleBuildRunner(toolingRunner).execute(new GradleLaunchSpec() {
+            @Override
+            public String getDescription() {
+                return "Project build";
+            }
+
+            @Override
+            public Iterable<String> getTaskNames() {
+                return taskNames;
+            }
+        });
     }
 
     @Override
@@ -93,7 +104,7 @@ public class GradleActionProvider implements ActionProvider {
             return null;
         }
         // TODO utility to find project
-        if (COMMAND_BUILD.equals(command) && Iterables.any(tasks.getTasks(), matchesTaskName(projectPath, "build"))) {
+        if (COMMAND_BUILD.equals(command) && Iterables.any(tasks.getTasks(), matchesTaskName(projectInfo.getProjectPath(), "build"))) {
             return Collections.singletonList("build");
         }
         return null;

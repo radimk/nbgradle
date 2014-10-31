@@ -3,6 +3,7 @@ package org.nbgradle.netbeans.project
 import com.google.common.io.ByteSink
 import com.google.common.io.FileBackedOutputStream
 import org.gradle.tooling.model.gradle.BasicGradleProject
+import org.nbgradle.netbeans.project.lookup.GradleProjectInformation
 import org.nbgradle.netbeans.project.model.DefaultDistributionSpec
 import org.netbeans.api.project.Project
 import org.netbeans.spi.project.ActionProvider
