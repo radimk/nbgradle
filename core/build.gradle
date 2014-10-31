@@ -92,13 +92,9 @@ test {
     systemProperty 'integTest.gradleHomeDir', rootProject.file('unpacked/gradle-dist').absolutePath
 }
 
-// set netbeansInstallDir project property
 task netBeansRun(type: Exec) {
     dependsOn tasks.findByPath(':runSetup')
     doFirst {
-//        if (!project.hasProperty('netBeansInstallDir')) {
-//            throw new GradleException("missing netBeansInstallDir property")
-//        }
         def confFile = project.file("$project.buildDir/testuserdir/etc/netbeans.conf")
         confFile.parentFile.mkdirs()
         confFile.write "netbeans_extraclusters=\"$project.buildDir/module\""
@@ -106,5 +102,5 @@ task netBeansRun(type: Exec) {
 
     workingDir "${project.buildDir}"
 
-    commandLine rootProject.rootDir.absolutePath + '/unpacked/netbeans/netbeans/bin/netbeans', '--userdir', "$project.buildDir/testuserdir", "-J-Dorg.nbgradle.netbeans.level=500"
+    commandLine rootProject.rootDir.absolutePath + '/unpacked/netbeans/netbeans/bin/netbeans', '--userdir', "$project.buildDir/testuserdir", '-J-Dnetbeans.console.logger=true', '-J-Dorg.nbgradle.netbeans.level=FINER'
 }
