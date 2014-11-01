@@ -151,13 +151,13 @@ public class GradleActionProvider implements ActionProvider {
     }
 
     private static class IOToStreamsAdapter implements StandardStreams {
-        private final InputOutput io;
+        // private final InputOutput io;
         private final InputStream in;
         private final OutputStream out;
         private final OutputStream err;
 
         private IOToStreamsAdapter(InputOutput io) {
-            this.io = io;
+            // this.io = io;
             in = new ReaderInputStream(io.getIn());
             out = new WriterOutputStream(io.getOut());
             err = new WriterOutputStream(io.getErr());
