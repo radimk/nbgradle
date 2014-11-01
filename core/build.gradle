@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.8.0"
+        classpath "cz.kubacki.gradle.plugins:gradle-nbm-plugin:1.9.0-rc.1"
     }
 }
 
@@ -99,13 +99,6 @@ task netBeansRun(type: Exec) {
         def confFile = project.file("$project.buildDir/testuserdir/etc/netbeans.conf")
         confFile.parentFile.mkdirs()
         confFile.write "netbeans_extraclusters=\"$project.buildDir/module\""
-
-        def timestamp = project.file("$buildDir/module/.lastModified")
-        if (timestamp.exists()) {
-            timestamp.setLastModified(System.currentTimeMillis())
-        } else {
-            timestamp.createNewFile()
-        }
     }
 
     workingDir "${project.buildDir}"
