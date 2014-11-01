@@ -38,6 +38,10 @@ public class NbGradleBuildRunner implements Action<GradleLaunchSpec> {
         buildLauncher.setStandardInput(gradleLaunchSpec.getStandardStreams().getInputStream());
         buildLauncher.setStandardOutput(gradleLaunchSpec.getStandardStreams().getOutputStream());
         buildLauncher.setStandardError(gradleLaunchSpec.getStandardStreams().getErrorStream());
+        CancellationToken cancel = gradleLaunchSpec.getCancellationToken();
+        if (cancel != null) {
+            buildLauncher.withCancellationToken(cancel);
+        }
         progress.start();
 
         buildLauncher.run(new ResultHandler<Void>() {

@@ -10,6 +10,9 @@ import com.gradleware.tooling.eclipse.core.models.ModelProvider;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.gradle.api.Nullable;
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.model.Task;
 import org.gradle.tooling.model.gradle.BuildInvocations;
@@ -20,6 +23,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.LookupProvider;
 import org.netbeans.spi.project.ProjectServiceProvider;
+import org.openide.util.Cancellable;
 import org.openide.util.Lookup;
 import org.openide.util.Parameters;
 import org.openide.windows.IOProvider;
@@ -125,23 +129,30 @@ public class GradleActionProvider implements ActionProvider {
         private final String title;
         private final InputOutput io;
         private final IOToStreamsAdapter streams;
+        private final NbBuildProgressMonitor progress;
 
         public NbGradleLaunchSpec(Iterable<String> taskNames) {
             this.taskNames = taskNames;
             IOProvider ioProvider = IOProvider.getDefault();
             title = projectInfo.getName() + " (" + Joiner.on(',').join(getTaskNames()) + ")";
+            progress = new NbBuildProgressMonitor(title);
             io = ioProvider.getIO(title, false);
             streams = new IOToStreamsAdapter(io);
         }
 
         @Override
         public BuildProgressMonitor createProgressMonitor() {
-            return new NbBuildProgressMonitor(title);
+            return progress;
         }
 
         @Override
         public Iterable<String> getTaskNames() {
             return taskNames;
+        }
+
+        @Override
+        public CancellationToken getCancellationToken() {
+            return progress.cancelSource.token();
         }
 
         @Override
@@ -187,10 +198,19 @@ public class GradleActionProvider implements ActionProvider {
     }
 
     private class NbBuildProgressMonitor implements BuildProgressMonitor {
+        private final CancellationTokenSource cancelSource;
         private final ProgressHandle progress;
 
         private NbBuildProgressMonitor(String title) {
-            progress = ProgressHandleFactory.createHandle(title);
+            cancelSource = GradleConnector.newCancellationTokenSource();
+            progress = ProgressHandleFactory.createHandle(title,
+                    new Cancellable() {
+                        @Override
+                        public boolean cancel() {
+                            cancelSource.cancel();
+                            return true;
+                        }
+                    });
         }
 
         @Override
