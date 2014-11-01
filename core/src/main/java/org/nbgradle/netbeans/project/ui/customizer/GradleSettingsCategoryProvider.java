@@ -3,7 +3,9 @@ package org.nbgradle.netbeans.project.ui.customizer;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import com.google.common.base.Preconditions;
 import org.nbgradle.netbeans.project.NbGradleConstants;
+import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer.Category;
 import org.openide.util.Lookup;
@@ -24,7 +26,11 @@ public class GradleSettingsCategoryProvider implements ProjectCustomizer.Composi
 
     @Override
     public JComponent createComponent(Category category, Lookup lkp) {
-        return new JPanel();
+        DefaultGradleBuildSettings buildSettings =
+                Preconditions.checkNotNull(lkp.lookup(DefaultGradleBuildSettings.class));
+        GradleSettingsPanel settingsPanel = new GradleSettingsPanel();
+        settingsPanel.attachData(buildSettings);
+        return settingsPanel;
     }
 
 }

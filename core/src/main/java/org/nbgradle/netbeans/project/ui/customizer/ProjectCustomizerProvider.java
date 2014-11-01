@@ -5,11 +5,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import org.nbgradle.netbeans.project.NbGradleConstants;
+import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.spi.project.ui.CustomizerProvider;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 public class ProjectCustomizerProvider implements CustomizerProvider {
@@ -24,9 +26,12 @@ public class ProjectCustomizerProvider implements CustomizerProvider {
 
     @Override
     public void showCustomizer() {
+        Lookup lookup = Lookups.fixed(
+                project,
+                project.getLookup().lookup(DefaultGradleBuildSettings.class));
         Dialog dialog = ProjectCustomizer.createCustomizerDialog(
                 CUSTOMIZER_FOLDER_PATH,
-                Lookups.fixed(project),
+                lookup,
                 "", //Preselected category
                 new OKOptionListener(),//OK button listener
                 null); // HelpCtx

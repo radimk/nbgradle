@@ -7,6 +7,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "defaultDistribution")
 public class DefaultDistributionSpec extends DistributionSettings {
+    public DefaultDistributionSpec() {
+        super(Type.DEFAULT);
+    }
+
     @Override
     public DistributionSpec toSpec() {
         return DistributionSpecs.defaultDistribution();

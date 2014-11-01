@@ -7,18 +7,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "versionDistribution")
 public class VersionDistributionSpec extends DistributionSettings {
-    private String version;
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
+    public VersionDistributionSpec() {
+        super(Type.VERSION);
     }
 
     @Override
     public DistributionSpec toSpec() {
-        return DistributionSpecs.versionDistribution(version);
+        return DistributionSpecs.versionDistribution(getValue());
     }
 }

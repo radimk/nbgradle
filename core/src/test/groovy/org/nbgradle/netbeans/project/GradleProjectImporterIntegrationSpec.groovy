@@ -36,7 +36,7 @@ class GradleProjectImporterIntegrationSpec extends AbstractIntegrationSpec {
     @UsesSample("java/quickstart")
     def "simple project imported using gradle version"() {
         DistributionSettings distroSettings = new VersionDistributionSpec()
-        distroSettings.version = '1.11'
+        distroSettings.value = '1.11'
         DistributionSpec distribution = DistributionSpecs.versionDistribution('1.11')
         NbGradleBuildSettings buildSettings = Mock(NbGradleBuildSettings)
         _ * buildSettings.distributionSettings >> distroSettings
@@ -50,7 +50,7 @@ class GradleProjectImporterIntegrationSpec extends AbstractIntegrationSpec {
 
         then:
         buildXml != null
-        buildXml.distribution.version == '1.11'
+        buildXml.distribution.value == '1.11'
         buildXml.rootProject.name == 'quickstart'
         buildXml.rootProject.path == ':'
         buildXml.rootProject.projectDirectory == sample.dir.toFile().canonicalFile
