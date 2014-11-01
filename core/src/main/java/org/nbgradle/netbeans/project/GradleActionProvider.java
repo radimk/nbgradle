@@ -1,10 +1,14 @@
 package org.nbgradle.netbeans.project;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.io.Closeables;
 import com.gradleware.tooling.eclipse.core.models.GradleRunner;
 import com.gradleware.tooling.eclipse.core.models.ModelProvider;
+import org.apache.commons.io.input.ReaderInputStream;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.gradle.api.Nullable;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.model.Task;
@@ -18,7 +22,12 @@ import org.netbeans.spi.project.LookupProvider;
 import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.util.Lookup;
 import org.openide.util.Parameters;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -113,24 +122,76 @@ public class GradleActionProvider implements ActionProvider {
 
     private class NbGradleLaunchSpec implements GradleLaunchSpec {
         private final Iterable<String> taskNames;
+        private final String title;
+        private final InputOutput io;
+        private final IOToStreamsAdapter streams;
 
         public NbGradleLaunchSpec(Iterable<String> taskNames) {
             this.taskNames = taskNames;
+            IOProvider ioProvider = IOProvider.getDefault();
+            title = projectInfo.getName() + " (" + Joiner.on(',').join(getTaskNames()) + ")";
+            io = ioProvider.getIO(title, false);
+            streams = new IOToStreamsAdapter(io);
         }
 
         @Override
         public BuildProgressMonitor createProgressMonitor() {
-            return new NbBuildProgressMonitor();
+            return new NbBuildProgressMonitor(title);
         }
 
         @Override
         public Iterable<String> getTaskNames() {
             return taskNames;
         }
+
+        @Override
+        public StandardStreams getStandardStreams() {
+            return streams;
+        }
+    }
+
+    private static class IOToStreamsAdapter implements StandardStreams {
+        private final InputOutput io;
+        private final InputStream in;
+        private final OutputStream out;
+        private final OutputStream err;
+
+        private IOToStreamsAdapter(InputOutput io) {
+            this.io = io;
+            in = new ReaderInputStream(io.getIn());
+            out = new WriterOutputStream(io.getOut());
+            err = new WriterOutputStream(io.getErr());
+        }
+
+        @Override
+        public InputStream getInputStream() {
+            return in;
+        }
+
+        @Override
+        public OutputStream getOutputStream() {
+            return out;
+        }
+
+        @Override
+        public OutputStream getErrorStream() {
+            return err;
+        }
+
+        @Override
+        public void close() throws IOException {
+            Closeables.closeQuietly(in);
+            out.close();
+            err.close();
+        }
     }
 
     private class NbBuildProgressMonitor implements BuildProgressMonitor {
-        private final ProgressHandle progress = ProgressHandleFactory.createHandle("Project " + projectInfo.getName() + ": BUILD");
+        private final ProgressHandle progress;
+
+        private NbBuildProgressMonitor(String title) {
+            progress = ProgressHandleFactory.createHandle(title);
+        }
 
         @Override
         public void start() {

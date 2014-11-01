@@ -7,6 +7,7 @@ import org.gradle.tooling.*;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +25,7 @@ public class NbGradleBuildRunner implements Action<GradleLaunchSpec> {
     }
 
     @Override
-    public void execute(GradleLaunchSpec gradleLaunchSpec) {
+    public void execute(final GradleLaunchSpec gradleLaunchSpec) {
         LOGGER.log(Level.INFO, "Starting Gradle build: {0}", gradleLaunchSpec.getTaskNames());
         final BuildProgressMonitor progress = gradleLaunchSpec.createProgressMonitor();
         BuildLauncher buildLauncher = toolingRunner.newBuild().forTasks(Iterables.toArray(gradleLaunchSpec.getTaskNames(), String.class));
@@ -34,6 +35,9 @@ public class NbGradleBuildRunner implements Action<GradleLaunchSpec> {
                 progress.statusChanged(event);
             }
         });
+        buildLauncher.setStandardInput(gradleLaunchSpec.getStandardStreams().getInputStream());
+        buildLauncher.setStandardOutput(gradleLaunchSpec.getStandardStreams().getOutputStream());
+        buildLauncher.setStandardError(gradleLaunchSpec.getStandardStreams().getErrorStream());
         progress.start();
 
         buildLauncher.run(new ResultHandler<Void>() {
@@ -41,12 +45,22 @@ public class NbGradleBuildRunner implements Action<GradleLaunchSpec> {
             public void onComplete(Void result) {
                 LOGGER.log(Level.INFO, "Gradle build completed.");
                 progress.finish();
+                try {
+                    gradleLaunchSpec.getStandardStreams().close();
+                } catch (IOException e) {
+                    LOGGER.log(Level.INFO, null, e);
+                }
             }
 
             @Override
             public void onFailure(GradleConnectionException failure) {
                 LOGGER.log(Level.INFO, "Gradle build failed.");
                 progress.finish();
+                try {
+                    gradleLaunchSpec.getStandardStreams().close();
+                } catch (IOException e) {
+                    LOGGER.log(Level.INFO, null, e);
+                }
             }
         });
     }

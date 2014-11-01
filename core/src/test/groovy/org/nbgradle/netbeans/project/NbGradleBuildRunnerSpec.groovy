@@ -7,17 +7,29 @@ import org.netbeans.api.progress.ProgressHandle
 
 class NbGradleBuildRunnerSpec extends AbstractProjectSpec {
 
-    def 'runs the build with progress'() {
-        def gradleRunner = Mock(GradleRunner)
-        def runner = new NbGradleBuildRunner(gradleRunner)
-        def runnerSpec = Mock(GradleLaunchSpec)
-        def launcher = Mock(BuildLauncher)
+    def gradleRunner
+    def runner
+    def runnerSpec
+    def launcher
+    def progress
+    def streams
 
-        def progress = Mock(BuildProgressMonitor)
+    def setup() {
+        gradleRunner = Mock(GradleRunner)
+        runner = new NbGradleBuildRunner(gradleRunner)
+        runnerSpec = Mock(GradleLaunchSpec)
+        launcher = Mock(BuildLauncher)
+        progress = Mock(BuildProgressMonitor)
+        streams = Mock(StandardStreams)
 
-        _ * runnerSpec.taskNames >> ['build']
+        _ * runnerSpec.standardStreams >> streams
         1 * gradleRunner.newBuild() >> launcher
         _ * launcher.forTasks(_) >> launcher
+    }
+
+    def 'runs the build with progress'() {
+
+        _ * runnerSpec.taskNames >> ['build']
         1 * launcher.run(_) >> { args -> args[0].onComplete(null) }
 
         when:
@@ -30,16 +42,7 @@ class NbGradleBuildRunnerSpec extends AbstractProjectSpec {
     }
 
     def 'runs failing build with progress'() {
-        def gradleRunner = Mock(GradleRunner)
-        def runner = new NbGradleBuildRunner(gradleRunner)
-        def runnerSpec = Mock(GradleLaunchSpec)
-        def launcher = Mock(BuildLauncher)
-
-        def progress = Mock(BuildProgressMonitor)
-
         _ * runnerSpec.taskNames >> ['build']
-        1 * gradleRunner.newBuild() >> launcher
-        _ * launcher.forTasks(_) >> launcher
         1 * launcher.run(_) >> { args -> args[0].onFailure(null) }
 
         when:
@@ -52,16 +55,7 @@ class NbGradleBuildRunnerSpec extends AbstractProjectSpec {
     }
 
     def 'relays progress from build'() {
-        def gradleRunner = Mock(GradleRunner)
-        def runner = new NbGradleBuildRunner(gradleRunner)
-        def runnerSpec = Mock(GradleLaunchSpec)
-        def launcher = Mock(BuildLauncher)
-
-        def progress = Mock(BuildProgressMonitor)
-
         _ * runnerSpec.taskNames >> ['build']
-        1 * gradleRunner.newBuild() >> launcher
-        _ * launcher.forTasks(_) >> launcher
         1 * launcher.run(_) >> { args -> args[0].onFailure(null) }
 
         when:

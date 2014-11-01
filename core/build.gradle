@@ -75,6 +75,7 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.5'
     compile 'org.gradle:gradle-tooling-api:1.12'
     compile 'com.google.guava:guava:17.0'
+    compile 'commons-io:commons-io:2.4'
 
     testCompile 'org.codehaus.groovy:groovy-all:2.2.0'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
