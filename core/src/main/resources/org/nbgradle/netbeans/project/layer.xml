@@ -25,13 +25,7 @@
 
     <folder name="Projects">
         <folder name="org-nbgradle-netbeans-project">
-            <folder name="Customizer">
-                <!-- XXX replace with annotations -->
-                <!--<file name="General.instance">-->
-                    <!--<attr name="instanceCreate" methodvalue="org.netbeans.modules.android.project.ui.customizer.AndroidCompositePanelProvider.createGeneral"/>-->
-                    <!--<attr name="position" intvalue="100"/>-->
-                <!--</file>-->
-            </folder>
+            <folder name="Customizer"/>
 
             <folder name="Nodes">
                 <!-- XXX replace with annotations -->

@@ -2,6 +2,7 @@ package org.nbgradle.netbeans.project
 
 import org.netbeans.api.project.Project
 import org.netbeans.api.project.ProjectInformation
+import org.netbeans.spi.project.ui.CustomizerProvider
 import org.netbeans.spi.project.ui.LogicalViewProvider
 import org.openide.filesystems.FileObject
 import spock.lang.Specification
@@ -11,11 +12,7 @@ class NbGradleProjectSpec extends AbstractProjectSpec {
     /*
 The following abilities are recommended:
 
-ProjectInformation
-LogicalViewProvider
-CustomizerProvider
 Sources
-ActionProvider
 SubprojectProvider
 AuxiliaryConfiguration
 AuxiliaryProperties
@@ -64,5 +61,14 @@ CreateFromTemplateAttributesProvider
 
         then:
         node != null
+    }
+
+    def 'project customizes provider'() {
+        when:
+        Project prj = new NbGradleProject(prjDir, projectDir)
+        def provider = prj.lookup.lookup(CustomizerProvider)
+
+        then:
+        provider != null
     }
 }
