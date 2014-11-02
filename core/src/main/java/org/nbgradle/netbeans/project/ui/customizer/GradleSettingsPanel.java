@@ -2,6 +2,7 @@ package org.nbgradle.netbeans.project.ui.customizer;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -12,7 +13,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
+
+import com.google.common.base.Strings;
+import org.nbgradle.netbeans.project.model.DefaultDistributionSpec;
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
+import org.nbgradle.netbeans.project.model.VersionDistributionSpec;
 
 /**
  *
@@ -68,6 +73,8 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
 
         buttonGroup1.add(radioVersion);
         radioVersion.setText("Version:");
+
+        cbxVersion.setEditable(true);
 
         buttonGroup1.add(radioURIVersion);
         radioURIVersion.setText("URI:");
@@ -216,5 +223,27 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
             default:
                 throw new IllegalStateException("Unknown distribution type " + buildSettings.getDistributionSettings().type);
         }
+        File gradleUserHomeDir = buildSettings.getGradleUserHomeDir();
+        txtUserDir.setText(gradleUserHomeDir != null ? gradleUserHomeDir.getAbsolutePath() : "");
+    }
+
+    public void updateData(DefaultGradleBuildSettings buildSettings) {
+        if (radioDefaultVersion.isSelected()) {
+            buildSettings.setDistributionSettings(new DefaultDistributionSpec());
+        } else if (radioInstalledVersion.isSelected()) {
+            throw new UnsupportedOperationException("TODO");
+            // buildSettings.setDistributionSettings();
+        } else if (radioVersion.isSelected()) {
+            VersionDistributionSpec spec = new VersionDistributionSpec();
+            spec.setValue((String) cbxVersion.getSelectedItem());
+            buildSettings.setDistributionSettings(spec);
+        } else if (radioURIVersion.isSelected()) {
+            throw new UnsupportedOperationException("TODO");
+            // buildSettings.setDistributionSettings();
+        } else {
+            throw new IllegalStateException("Cannot set Gradle distribution.");
+        }
+        String userDir = txtUserDir.getText();
+        buildSettings.setGradleUserHomeDir(Strings.isNullOrEmpty(userDir) ? null : new File(userDir));
     }
 }
