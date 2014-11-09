@@ -2,6 +2,7 @@ package org.nbgradle.netbeans.project
 
 import org.netbeans.api.project.Project
 import org.netbeans.api.project.ProjectInformation
+import org.netbeans.spi.project.SubprojectProvider
 import org.netbeans.spi.project.ui.CustomizerProvider
 import org.netbeans.spi.project.ui.LogicalViewProvider
 import org.openide.filesystems.FileObject
@@ -13,7 +14,6 @@ class NbGradleProjectSpec extends AbstractProjectSpec {
 The following abilities are recommended:
 
 Sources
-SubprojectProvider
 AuxiliaryConfiguration
 AuxiliaryProperties
 CacheDirectoryProvider
@@ -67,6 +67,15 @@ CreateFromTemplateAttributesProvider
         when:
         Project prj = new NbGradleProject(prjDir, projectDir)
         def provider = prj.lookup.lookup(CustomizerProvider)
+
+        then:
+        provider != null
+    }
+
+    def 'subproject provider'() {
+        when:
+        Project prj = new NbGradleProject(prjDir, projectDir)
+        def provider = prj.lookup.lookup(SubprojectProvider)
 
         then:
         provider != null

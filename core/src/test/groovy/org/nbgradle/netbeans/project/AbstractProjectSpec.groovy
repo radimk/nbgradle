@@ -2,6 +2,7 @@ package org.nbgradle.netbeans.project
 
 import com.google.common.io.ByteSink
 import com.google.common.io.FileBackedOutputStream
+import org.gradle.tooling.model.DomainObjectSet
 import org.gradle.tooling.model.gradle.BasicGradleProject
 import org.nbgradle.netbeans.project.lookup.GradleProjectInformation
 import org.nbgradle.netbeans.project.model.DefaultDistributionSpec
@@ -16,9 +17,11 @@ class AbstractProjectSpec extends Specification {
 
     def setup() {
         BasicGradleProject gradleProject = Mock(BasicGradleProject)
+        DomainObjectSet children = Mock(DomainObjectSet)
         _ * gradleProject.path >> ':'
         _ * gradleProject.name >> 'name'
-        _ * gradleProject.children >> []
+        _ * gradleProject.children >> children
+        _ * children.all >> []
         def fbos = new FileBackedOutputStream(2048)
         new GradleProjectImporter().writeProjectSettings(gradleProject, new DefaultDistributionSpec(), new ByteSink() {
             @Override

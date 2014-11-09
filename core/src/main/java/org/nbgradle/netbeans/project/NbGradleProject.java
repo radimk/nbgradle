@@ -5,6 +5,7 @@ import com.gradleware.tooling.eclipse.core.models.*;
 import org.gradle.jarjar.com.google.common.base.Preconditions;
 import org.nbgradle.netbeans.project.lookup.DefaultGradleProjectInformation;
 import org.nbgradle.netbeans.project.lookup.NbGradleOperationCustomizer;
+import org.nbgradle.netbeans.project.lookup.NbSubprojectProvider;
 import org.nbgradle.netbeans.project.ui.GradleLogicalViewProvider;
 import org.nbgradle.netbeans.project.ui.customizer.ProjectCustomizerProvider;
 import org.netbeans.api.project.Project;
@@ -41,13 +42,15 @@ public class NbGradleProject implements Project {
                 return settings != null ? settings.getInputStream() : ByteSource.empty().openStream();
             }
         };
-        GradleBuildSettings buildSettings = new GradleProjectImporter().readBuildSettings(settingsByteSource);
+        GradleProjectImporter.ImportedData importedData = new GradleProjectImporter().readBuildSettings(settingsByteSource);
+        GradleBuildSettings buildSettings = importedData.buildSettings;
         GradleIdeConnector connector = new GradleIdeConnector(buildSettings, projectDir);
         GradleRunner runner = new DefaultGradleToolingRunner(connector, new NbGradleOperationCustomizer());
         ModelProvider modelProvider = new DefaultModelProvider(runner);
         Lookup base = Lookups.fixed(
                 buildSettings,
                 new DefaultGradleProjectInformation(this, ":"),
+                new NbSubprojectProvider(importedData.projectTree),
                 runner,
                 modelProvider,
                 new GradleLogicalViewProvider(this),

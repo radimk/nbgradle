@@ -1,5 +1,6 @@
 package org.nbgradle.netbeans.project;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteSink;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
@@ -8,6 +9,7 @@ import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
+import org.nbgradle.netbeans.project.lookup.ProjectTreeInformation;
 import org.nbgradle.netbeans.project.model.*;
 
 import javax.xml.bind.JAXBContext;
@@ -18,8 +20,19 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class GradleProjectImporter {
+
+    public static class ImportedData {
+        public final ProjectTreeInformation projectTree;
+        public final GradleBuildSettings buildSettings;
+
+        public ImportedData(ProjectTreeInformation projectTree, GradleBuildSettings buildSettings) {
+            this.projectTree = projectTree;
+            this.buildSettings = buildSettings;
+        }
+    }
 
     public void importProject(NbGradleBuildSettings gradleBuildSettings, File projectDir) {
         GradleConnector connector = GradleConnector.newConnector()
@@ -62,19 +75,23 @@ public class GradleProjectImporter {
         projectJaxb.setPath(project.getPath());
         projectJaxb.setName(project.getName());
         projectJaxb.setProjectDirectory(project.getProjectDirectory());
-        // todo children
+        List<NbGradleProjectJAXB> children = Lists.newArrayList();
+        for (BasicGradleProject child : project.getChildren().getAll()) {
+            children.add(createProjectJAXB(child));
+        }
+        projectJaxb.setChildProjects(children);
         return projectJaxb;
     }
 
-    public GradleBuildSettings readBuildSettings(ByteSource byteSource) {
+    public ImportedData readBuildSettings(ByteSource byteSource) {
         try (InputStream is = byteSource.openStream()) {
             JAXBContext context = JAXBContext.newInstance(NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
             Unmarshaller um = context.createUnmarshaller();
             NbGradleBuildJAXB build = (NbGradleBuildJAXB) um.unmarshal(is);
             DefaultGradleBuildSettings settings = new DefaultGradleBuildSettings();
             settings.setDistributionSettings(build.getDistribution());
-            // TODO how to return project path/name?
-            return settings;
+
+            return new ImportedData(build.getRootProject(), settings);
         } catch (JAXBException | IOException e) {
             throw new ProjectImportException("Cannot read project metadata.", e);
         }

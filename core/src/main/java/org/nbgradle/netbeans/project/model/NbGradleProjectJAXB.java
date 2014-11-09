@@ -1,11 +1,13 @@
 package org.nbgradle.netbeans.project.model;
 
+import org.nbgradle.netbeans.project.lookup.ProjectTreeInformation;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.util.List;
 
 @XmlRootElement(name = "project")
-public class NbGradleProjectJAXB {
+public class NbGradleProjectJAXB implements ProjectTreeInformation {
     private String name;
     private String path;
     private File projectDirectory;
