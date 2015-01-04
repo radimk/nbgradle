@@ -9,6 +9,8 @@ import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ui.OpenProjects;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -59,7 +61,12 @@ public final class ImportGradleProjectAction implements ActionListener {
         try {
             new GradleProjectImporter().importProject(new DefaultGradleBuildSettings(), importedDir);
             Project project = ProjectManager.getDefault().findProject(FileUtil.toFileObject(importedDir));
-            OpenProjects.getDefault().open(new Project[] {project}, false);
+            if (project != null) {
+                OpenProjects.getDefault().open(new Project[] {project}, false);
+            } else {
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
+                        "Project was not created. Check the log.", NotifyDescriptor.INFORMATION_MESSAGE));
+            }
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
         }
