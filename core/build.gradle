@@ -27,6 +27,7 @@ compileJava {
 }
 
 test.dependsOn tasks.findByPath(':testSetup')
+assemble.dependsOn 'netbeans' // or 'nbm'? TODO fix in gradle-nbm-plugin
 
 version = '1.0'
 nbm {
