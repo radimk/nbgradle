@@ -36,6 +36,20 @@ task runSetup(type: DefaultTask) {
     dependsOn 'unzipNetBeans'
 }
 
+task netBeansRun(type: Exec) {
+    dependsOn ':runSetup'
+    doFirst {
+        def confFile = project.file("$project.buildDir/testuserdir/etc/netbeans.conf")
+        confFile.parentFile.mkdirs()
+        def clusterPath = [':core', ':java'].collect { project.findProject(it).buildDir.path + '/module' }.join(':')
+        confFile.write "netbeans_extraclusters=\"$clusterPath\""
+    }
+
+    workingDir "${project.buildDir}"
+
+    commandLine rootProject.rootDir.absolutePath + '/unpacked/netbeans/netbeans/bin/netbeans', '--userdir', "$project.buildDir/testuserdir", '-J-Dnetbeans.console.logger=true', '-J-Dorg.nbgradle.netbeans.level=FINER'
+}
+
 idea {
     project {
         wildcards += ['?*.gradle']

@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: org/nbgradle/netbeans/java/Bundle.properties
+OpenIDE-Module-Layer: org/nbgradle/netbeans/java/layer.xml
+OpenIDE-Module-Java-Dependencies: Java > 1.7
+OpenIDE-Module-Requires: org.openide.windows.WindowManager, org.openide.modules.ModuleFormat1

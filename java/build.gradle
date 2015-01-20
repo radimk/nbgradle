@@ -31,8 +31,8 @@ assemble.dependsOn 'netbeans' // or 'nbm'? TODO fix in gradle-nbm-plugin
 
 version = '1.0'
 nbm {
-    moduleName = 'org.nbgradle.netbeans.core'
-    localizingBundle = 'org/nbgradle/netbeans/core/Bundle.properties'
+    moduleName = 'org.nbgradle.netbeans.java'
+    localizingBundle = 'org/nbgradle/netbeans/java/Bundle.properties'
     // Module signing data
     keyStore {
          keyStoreFile = project.file('keystore')
@@ -42,17 +42,18 @@ nbm {
 }
 
 dependencies {
+    compile project(':core')
     compile 'org.netbeans.api:org-netbeans-api-annotations-common:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-api-debugger:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-api-debugger-jpda:RELEASE80'
-//    compile 'org.netbeans.api:org-netbeans-api-java:RELEASE80'
-//    compile 'org.netbeans.api:org-netbeans-api-java-classpath:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-api-java:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-api-java-classpath:RELEASE80'
     compile 'org.netbeans.api:org-netbeans-api-progress:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-core-multiview:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-modules-editor-indent-project:RELEASE80'
-//    compile 'org.netbeans.api:org-netbeans-modules-java-platform:RELEASE80'
-//    compile 'org.netbeans.api:org-netbeans-modules-java-project:RELEASE80'
-//    compile 'org.netbeans.api:org-netbeans-modules-java-source:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-java-platform:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-java-project:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-java-source:RELEASE80'
     compile 'org.netbeans.api:org-netbeans-modules-options-api:RELEASE80'
     compile 'org.netbeans.api:org-netbeans-modules-projectapi:RELEASE80'
     compile 'org.netbeans.api:org-netbeans-modules-projectuiapi:RELEASE80'
@@ -72,7 +73,6 @@ dependencies {
     compile 'org.netbeans.api:org-netbeans-modules-xml-jaxb-api:RELEASE80'
 //    compile 'org.netbeans.modules:org-netbeans-modules-gsf-testrunner:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-libs-javacapi:RELEASE80'
-    // compile files(project.file('src/main/resources'))
     compile 'org.slf4j:slf4j-api:1.7.5'
     compile 'org.gradle:gradle-tooling-api:2.2-rc-1'
     compile 'com.google.guava:guava:17.0'
