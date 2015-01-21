@@ -2,7 +2,7 @@ package org.nbgradle.netbeans.project;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
-import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings;
+import org.nbgradle.netbeans.models.GradleBuildSettings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;

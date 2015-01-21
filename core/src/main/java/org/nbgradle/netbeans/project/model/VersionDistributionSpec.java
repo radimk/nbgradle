@@ -1,7 +1,7 @@
 package org.nbgradle.netbeans.project.model;
 
-import com.gradleware.tooling.eclipse.core.models.DistributionSpec;
-import com.gradleware.tooling.eclipse.core.models.DistributionSpecs;
+import org.nbgradle.netbeans.models.DistributionSpec;
+import org.nbgradle.netbeans.models.DistributionSpecs;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

@@ -2,8 +2,8 @@ package org.nbgradle.netbeans.project
 
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import com.gradleware.tooling.eclipse.core.models.GradleRunner
-import com.gradleware.tooling.eclipse.core.models.ModelProvider
+import org.nbgradle.netbeans.models.GradleRunner
+import org.nbgradle.netbeans.models.ModelProvider
 import org.gradle.tooling.model.DomainObjectSet
 import org.gradle.tooling.model.Task
 import org.gradle.tooling.model.gradle.BuildInvocations

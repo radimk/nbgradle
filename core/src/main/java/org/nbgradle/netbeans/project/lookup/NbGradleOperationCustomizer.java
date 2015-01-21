@@ -1,6 +1,6 @@
 package org.nbgradle.netbeans.project.lookup;
 
-import com.gradleware.tooling.eclipse.core.models.GradleOperationCustomizer;
+import org.nbgradle.netbeans.models.GradleOperationCustomizer;
 import org.gradle.tooling.LongRunningOperation;
 
 import java.io.IOException;

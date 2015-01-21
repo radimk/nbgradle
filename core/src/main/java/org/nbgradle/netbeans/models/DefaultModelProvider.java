@@ -1,4 +1,4 @@
-package com.gradleware.tooling.eclipse.core.models;
+package org.nbgradle.netbeans.models;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;

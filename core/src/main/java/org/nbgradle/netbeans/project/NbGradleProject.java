@@ -1,7 +1,12 @@
 package org.nbgradle.netbeans.project;
 
+import org.nbgradle.netbeans.models.GradleIdeConnector;
+import org.nbgradle.netbeans.models.GradleRunner;
+import org.nbgradle.netbeans.models.ModelProvider;
+import org.nbgradle.netbeans.models.DefaultModelProvider;
+import org.nbgradle.netbeans.models.GradleBuildSettings;
+import org.nbgradle.netbeans.models.DefaultGradleToolingRunner;
 import com.google.common.io.ByteSource;
-import com.gradleware.tooling.eclipse.core.models.*;
 import org.gradle.jarjar.com.google.common.base.Preconditions;
 import org.nbgradle.netbeans.project.lookup.DefaultGradleProjectInformation;
 import org.nbgradle.netbeans.project.lookup.NbGradleOperationCustomizer;

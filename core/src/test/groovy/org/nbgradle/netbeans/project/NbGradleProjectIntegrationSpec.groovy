@@ -1,7 +1,7 @@
 package org.nbgradle.netbeans.project
 
-import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings
-import com.gradleware.tooling.eclipse.core.models.ModelProvider
+import org.nbgradle.netbeans.models.GradleBuildSettings
+import org.nbgradle.netbeans.models.ModelProvider
 import org.junit.Rule
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings
 import org.nbgradle.test.fixtures.AbstractIntegrationSpec

@@ -1,7 +1,7 @@
 package org.nbgradle.netbeans.project;
 
 import com.google.common.collect.Iterables;
-import com.gradleware.tooling.eclipse.core.models.GradleRunner;
+import org.nbgradle.netbeans.models.GradleRunner;
 import org.gradle.api.Action;
 import org.gradle.tooling.*;
 import org.netbeans.api.progress.ProgressHandle;

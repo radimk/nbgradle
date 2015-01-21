@@ -1,5 +1,7 @@
 package com.gradleware.tooling.eclipse.core.models;
 
+import org.nbgradle.netbeans.models.GradleRunner;
+import org.nbgradle.netbeans.models.DefaultModelProvider;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.junit.Before;

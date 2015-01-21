@@ -1,4 +1,4 @@
-package com.gradleware.tooling.eclipse.core.models;
+package org.nbgradle.netbeans.models;
 
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.Launchable;

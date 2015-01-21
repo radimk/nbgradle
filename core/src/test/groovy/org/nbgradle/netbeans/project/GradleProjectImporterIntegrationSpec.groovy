@@ -1,8 +1,8 @@
 package org.nbgradle.netbeans.project
 
-import com.gradleware.tooling.eclipse.core.models.DistributionSpec
-import com.gradleware.tooling.eclipse.core.models.DistributionSpecs
-import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings
+import org.nbgradle.netbeans.models.DistributionSpec
+import org.nbgradle.netbeans.models.DistributionSpecs
+import org.nbgradle.netbeans.models.GradleBuildSettings
 import org.junit.Rule
 import org.nbgradle.netbeans.project.model.DistributionSettings
 import org.nbgradle.netbeans.project.model.NbGradleBuildSettings

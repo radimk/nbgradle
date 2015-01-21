@@ -1,5 +1,9 @@
 package com.gradleware.tooling.eclipse.core.models;
 
+import org.nbgradle.netbeans.models.GradleOperationCustomizer;
+import org.nbgradle.netbeans.models.IdeConnector;
+import org.nbgradle.netbeans.models.DefaultGradleToolingRunner;
+import org.nbgradle.netbeans.models.GradleIdeConnector;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.eclipse.EclipseProject;

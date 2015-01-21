@@ -1,6 +1,6 @@
 package org.nbgradle.netbeans.project.model;
 
-import com.gradleware.tooling.eclipse.core.models.DistributionSpec;
+import org.nbgradle.netbeans.models.DistributionSpec;
 
 public abstract class DistributionSettings {
     public enum Type {

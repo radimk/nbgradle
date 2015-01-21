@@ -1,6 +1,6 @@
 package org.nbgradle.netbeans.project
 
-import com.gradleware.tooling.eclipse.core.models.GradleRunner
+import org.nbgradle.netbeans.models.GradleRunner
 import org.gradle.tooling.BuildLauncher
 import org.gradle.tooling.CancellationToken
 import org.gradle.tooling.ProgressEvent

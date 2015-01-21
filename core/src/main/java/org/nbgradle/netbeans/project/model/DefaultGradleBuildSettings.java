@@ -1,7 +1,7 @@
 package org.nbgradle.netbeans.project.model;
 
-import com.gradleware.tooling.eclipse.core.models.DistributionSpec;
-import com.gradleware.tooling.eclipse.core.models.GradleBuildSettings;
+import org.nbgradle.netbeans.models.DistributionSpec;
+import org.nbgradle.netbeans.models.GradleBuildSettings;
 
 import java.io.File;
 
