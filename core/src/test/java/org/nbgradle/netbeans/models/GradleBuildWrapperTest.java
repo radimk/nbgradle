@@ -1,4 +1,4 @@
-package com.gradleware.tooling.eclipse.core.models;
+package org.nbgradle.netbeans.models;
 
 import org.nbgradle.netbeans.models.GradleBuildWrapper;
 import org.nbgradle.netbeans.models.GradleBuildSettings;
