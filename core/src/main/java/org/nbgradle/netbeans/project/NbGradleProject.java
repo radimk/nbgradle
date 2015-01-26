@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 
 public class NbGradleProject implements Project {
     private static final Logger LOG = Logger.getLogger(NbGradleProject.class.getName());
@@ -53,6 +54,7 @@ public class NbGradleProject implements Project {
         GradleRunner runner = new DefaultGradleToolingRunner(connector, new NbGradleOperationCustomizer());
         ModelProvider modelProvider = new DefaultModelProvider(runner);
         Lookup base = Lookups.fixed(
+                this,
                 buildSettings,
                 new DefaultGradleProjectInformation(this, ":"),
                 new NbSubprojectProvider(importedData.projectTree),
@@ -60,8 +62,8 @@ public class NbGradleProject implements Project {
                 modelProvider,
                 new GradleLogicalViewProvider(this),
                 new ProjectCustomizerProvider(this),
+                new ProjectLoadingHook(this),
                 LookupProviderSupport.createActionProviderMerger());
-        // lookup = base; // a workaround for merged lookups calling Project.getLookup too early
         return LookupProviderSupport.createCompositeLookup(base, "Projects/" + NbGradleConstants.PROJECT_TYPE + "/Lookup");
     }
 

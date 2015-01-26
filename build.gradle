@@ -37,7 +37,7 @@ task runSetup(type: DefaultTask) {
 }
 
 task netBeansRun(type: Exec) {
-    dependsOn ':runSetup'
+    dependsOn ':runSetup', ':core:netbeans', ':java:netbeans'
     doFirst {
         def confFile = project.file("$project.buildDir/testuserdir/etc/netbeans.conf")
         confFile.parentFile.mkdirs()
