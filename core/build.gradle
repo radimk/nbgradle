@@ -78,6 +78,7 @@ dependencies {
     compile 'com.google.guava:guava:17.0'
     compile 'commons-io:commons-io:2.4'
 
+    testCompile project(':testLib')
     testCompile 'org.codehaus.groovy:groovy-all:2.2.0'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
     testCompile 'cglib:cglib-nodep:2.2.2'

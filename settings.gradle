@@ -1,2 +1,3 @@
+include 'testLib'
 include 'core'
 include 'java'
