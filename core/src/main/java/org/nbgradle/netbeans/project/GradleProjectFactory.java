@@ -23,7 +23,7 @@ public class GradleProjectFactory implements ProjectFactory2 {
 
     @Override
     public ProjectManager.Result isProject2(FileObject projectDirectory) {
-        LOG.log(Level.FINE, "check " + projectDirectory);
+        LOG.log(Level.FINEST, "check {0}", projectDirectory);
         if (projectDirectory.getFileObject(NbGradleConstants.NBGRADLE_BUILD_XML) != null) {
             return new ProjectManager.Result(ImageUtilities.loadImageIcon(PROJECT_ICON_PATH, true));
         }
