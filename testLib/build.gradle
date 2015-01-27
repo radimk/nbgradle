@@ -22,9 +22,9 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.2.0'
     compile 'org.spockframework:spock-core:0.7-groovy-2.0'
     compile 'cglib:cglib-nodep:2.2.2'
-    compile 'junit:junit:4.10'
+    compile 'junit:junit:4.12'
     compile 'org.mockito:mockito-core:1.9.5'
-    compile 'org.gradle:integ-test-helpers:0.2.0-rc.4'
+    compile 'org.gradle:integ-test-helpers:0.2.0'
 }
 
 test {
