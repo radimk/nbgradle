@@ -27,6 +27,7 @@ import org.nbgradle.netbeans.models.ModelProvider;
 import org.nbgradle.netbeans.project.NbGradleConstants;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.java.classpath.ClassPathImplementation;
@@ -42,8 +43,9 @@ import org.openide.util.Lookup;
  *
  * @author radim
  */
-@ProjectServiceProvider(service={ClassPathProvider.class, ModelProcessor.class}, projectType=NbGradleConstants.PROJECT_TYPE)
-public final class GradleProjectClasspathProvider implements ClassPathProvider, ModelProcessor {
+@ProjectServiceProvider(service={ClassPathProvider.class, RegisteredClassPathProvider.class, ModelProcessor.class},
+        projectType=NbGradleConstants.PROJECT_TYPE)
+public final class GradleProjectClasspathProvider implements ClassPathProvider, RegisteredClassPathProvider, ModelProcessor {
     private static final Logger LOG = Logger.getLogger(GradleProjectClasspathProvider.class.getName());
 
     private final @NonNull Project project;
@@ -60,7 +62,9 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
         sourceTest = new SourcePathResources("test libs");
         compileMain = new SourcePathResources("main libs");
         compileTest  = new SourcePathResources("test libs");
-        compileTestCp = ClassPathSupport.createProxyClassPath(compileTest.classpath, sourceMain.classpath, compileMain.classpath);
+        compileTestCp = ClassPathSupport.createProxyClassPath(
+                // need to add build/classes/main
+                compileTest.classpath, /*sourceMain.classpath, */compileMain.classpath);
         executeMain = executeTest = null;
     }
 
@@ -126,12 +130,16 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
         for (IdeaDependency dep : module.getDependencies()) {
             if (dep instanceof IdeaSingleEntryLibraryDependency) {
                 IdeaSingleEntryLibraryDependency lib = (IdeaSingleEntryLibraryDependency) dep;
-                if ("COMPILE".equals(lib.getScope().getScope())) {
+                switch (lib.getScope().getScope()) {
+                case "COMPILE":
                     srcMainLibs.add(lib.getFile());
-                } else if ("TEST".equals(lib.getScope().getScope())) {
+                    break;
+                case "TEST":
                     srcTestLibs.add(lib.getFile());
-                } else {
+                    break;
+                default:
                     LOG.log(Level.INFO, "Library {0} not processed yet", lib);
+                    break;
                 }
             }
         }
@@ -170,11 +178,29 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
     }
 
     private ClassPath createBoot() {
-        return JavaPlatformManager.getDefault().getDefaultPlatform().getBootstrapLibraries();
+        ClassPath bootstrapLibraries = JavaPlatformManager.getDefault().getDefaultPlatform().getBootstrapLibraries();
+        LOG.log(Level.FINE, "Boot classpath for {0} is {1}", new Object[] {project, bootstrapLibraries});
+        return bootstrapLibraries;
     }
 
     private boolean inSources(FileObject fo, ClassPath cp) {
         return cp.contains(fo);
+    }
+
+    @Override
+    public void register() {
+        GlobalPathRegistry pathRegistry = GlobalPathRegistry.getDefault();
+        pathRegistry.register(ClassPath.SOURCE, new ClassPath[] {sourceMain.classpath, sourceTest.classpath});
+        pathRegistry.register(ClassPath.COMPILE, new ClassPath[] {compileMain.classpath, compileTestCp});
+        pathRegistry.register(ClassPath.BOOT, new ClassPath[] {boot});
+    }
+
+    @Override
+    public void unregister() {
+        GlobalPathRegistry pathRegistry = GlobalPathRegistry.getDefault();
+        pathRegistry.unregister(ClassPath.SOURCE, new ClassPath[] {sourceMain.classpath, sourceTest.classpath});
+        pathRegistry.unregister(ClassPath.COMPILE, new ClassPath[] {compileMain.classpath, compileTestCp});
+        pathRegistry.unregister(ClassPath.BOOT, new ClassPath[] {boot});
     }
 
     private class SourcePathResources extends PathResourceBase {
