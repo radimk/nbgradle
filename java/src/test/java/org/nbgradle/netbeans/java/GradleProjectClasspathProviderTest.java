@@ -16,6 +16,7 @@ import java.io.IOException;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
 import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 
 import static org.junit.Assert.*;
@@ -25,7 +26,7 @@ public class GradleProjectClasspathProviderTest {
     @Rule public final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider();
     @Rule public Sample sample = new Sample(temporaryFolder);
 
-    private static Project importAndOpenProject(File prjDir) throws IOException {
+    private static Project importAndFindProject(File prjDir) throws IOException {
         FileObject prjDirFo = FileUtil.toFileObject(FileUtil.normalizeFile(prjDir));
         DefaultGradleBuildSettings buildSettings = new DefaultGradleBuildSettings();
         GradleProjectImporter importer = new GradleProjectImporter();
@@ -39,9 +40,11 @@ public class GradleProjectClasspathProviderTest {
 
     @Test
     @UsesSample("java/quickstart")
-    public void quickstart() throws IOException {
-        Project project = importAndOpenProject(sample.getDir().toFile());
+    public void quickstart() throws Exception {
+        Project project = importAndFindProject(sample.getDir().toFile());
+
         assertNotNull(project.getLookup().lookup(ClassPathProvider.class));
+        project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
         project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
 
         FileObject foSrcMainJava = project.getProjectDirectory().getFileObject("src/main/java");
@@ -52,7 +55,7 @@ public class GradleProjectClasspathProviderTest {
         // TODO boot CP according to selected platform
         assertThat(mainBootCp).isNotNull();
 
-        ClassPath testCp = ClassPath.getClassPath(foSrcMainJava, ClassPath.SOURCE);
+        ClassPath testCp = ClassPath.getClassPath(foSrcTestJava, ClassPath.SOURCE);
         assertThat(testCp.getRoots()).containsOnlyOnce(foSrcTestJava);
     }
 }

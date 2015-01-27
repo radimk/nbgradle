@@ -3,17 +3,26 @@ package org.nbgradle.netbeans.java;
 import com.google.common.base.Function;
 import org.nbgradle.netbeans.project.ModelProcessor;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Phaser;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.gradle.api.Nullable;
+import org.gradle.tooling.model.idea.IdeaContentRoot;
+import org.gradle.tooling.model.idea.IdeaModule;
 import org.gradle.tooling.model.idea.IdeaProject;
+import org.gradle.tooling.model.idea.IdeaSourceDirectory;
 import org.nbgradle.netbeans.models.ModelProvider;
 import org.nbgradle.netbeans.project.NbGradleConstants;
 import org.netbeans.api.annotations.common.NonNull;
@@ -41,37 +50,94 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
     private final @NonNull Project project;
     private final @NonNull ModelProvider modelProvider;
 
-    private final ClassPath boot, sourceMain, sourceTest, compileMain, compileTest, executeMain, executeTest;
+    private final SourcePathResources sourceMain, sourceTest;
+    private final ClassPath boot, compileMain, compileTest, executeMain, executeTest;
 
     public GradleProjectClasspathProvider(Project project, Lookup baseLookup) {
         this.project = Preconditions.checkNotNull(project);
         modelProvider = baseLookup.lookup(ModelProvider.class);
         boot = createBoot();
-        sourceMain = createSourcePath();
-        sourceTest = createSourcePath();
+        sourceMain = new SourcePathResources("main");
+        sourceTest = new SourcePathResources("test");
         compileMain = compileTest = executeMain = executeTest = null;
     }
 
     @Override
     public void loadFromGradle(final Phaser phaser) {
         phaser.register();
-        modelProvider.getModel(IdeaProject.class).addListener(new Runnable() {
+        ListenableFuture<IdeaProject> ideaModel = modelProvider.getModel(IdeaProject.class);
+        Futures.addCallback(ideaModel, new FutureCallback<IdeaProject>() {
 
             @Override
-            public void run() {
-                LOG.log(Level.INFO, "Processing classpath from IDEA");
-                // TODO compute classpath here
-                phaser.arriveAndDeregister();
+            public void onSuccess(IdeaProject model) {
+                try {
+                    LOG.log(Level.INFO, "Processing classpath from IDEA");
+                    updateClasspath(model);
+                } finally {
+                    phaser.arriveAndDeregister();
+                }
             }
-        }, MoreExecutors.sameThreadExecutor());
+
+            @Override
+            public void onFailure(Throwable t) {
+                try {
+                    LOG.log(Level.INFO, "Cannot get classpath using idea model", t);
+                    updateClasspath(null);
+                } finally {
+                    phaser.arriveAndDeregister();
+                }
+            }
+        });
+    }
+
+    private void updateClasspath(@Nullable IdeaProject ideaModel) {
+        if (ideaModel == null) {
+            // maybe it is better to hold previous state.
+            return;
+        }
+        IdeaModule module = Iterables.find(
+                ideaModel.getModules(),
+                new Predicate<IdeaModule>() {
+                    @Override
+                    public boolean apply(IdeaModule input) {
+                        return ":".equals(input.getGradleProject().getPath());
+                    }
+                },
+                null);
+        if (module == null) {
+            LOG.log(Level.INFO, "Cannot get classpath for this subproject");
+            return;
+        }
+
+        List<File> srcMainDirs = new ArrayList<>();
+        List<File> srcTestDirs = new ArrayList<>();
+        for (IdeaContentRoot contentRoot : module.getContentRoots()) {
+            for (IdeaSourceDirectory ideaSrcDir : contentRoot.getSourceDirectories()) {
+                srcMainDirs.add(ideaSrcDir.getDirectory());
+            }
+            for (IdeaSourceDirectory ideaSrcDir : contentRoot.getTestDirectories()) {
+                srcTestDirs.add(ideaSrcDir.getDirectory());
+            }
+        }
+        sourceMain.setRootDirs(srcMainDirs);
+        sourceTest.setRootDirs(srcTestDirs);
     }
 
     @Override
     public ClassPath findClassPath(FileObject fo, String type) {
-        if (inSources(fo, sourceMain)) {
+        if (inSources(fo, sourceMain.classpath)) {
             switch (type) {
             case ClassPath.SOURCE:
-                return sourceMain;
+                return sourceMain.classpath;
+            case ClassPath.BOOT:
+                return boot;
+            default:
+                return null;
+            }
+        } else if (inSources(fo, sourceTest.classpath)) {
+            switch (type) {
+            case ClassPath.SOURCE:
+                return sourceTest.classpath;
             case ClassPath.BOOT:
                 return boot;
             default:
@@ -85,35 +151,43 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
         return JavaPlatformManager.getDefault().getDefaultPlatform().getBootstrapLibraries();
     }
 
-    private ClassPath createSourcePath() {
-      return ClassPathSupport.createClassPath(
-            Collections.singletonList(new SourcePathResources()));
-    }
-
     private boolean inSources(FileObject fo, ClassPath cp) {
         return cp.contains(fo);
     }
 
     private class SourcePathResources extends PathResourceBase {
+        final ClassPath classpath;
+        Iterable<File> srcDirs = Collections.emptyList();
+        private final String group;
 
-        public SourcePathResources() {
+        public SourcePathResources(String group) {
+            this.group = group;
+            classpath = ClassPathSupport.createClassPath(Collections.singletonList(this));
         }
 
         @Override
         public URL[] getRoots() {
             List<URL> roots = Lists.newArrayList();
             try {
-                roots.add(FileUtil.urlForArchiveOrDir(FileUtil.toFile(project.getProjectDirectory().getFileObject("src/main/java"))));
+                for (File srcDir : srcDirs) {
+                    roots.add(FileUtil.urlForArchiveOrDir(srcDir));
+                }
             } catch (Exception ex) {
                 LOG.log(Level.FINE, "stub claspath cannot be created", ex);
             }
-            LOG.log(Level.FINE, "source roots: {0}", roots);
+            LOG.log(Level.INFO, "source roots in {0}/{1}: {2}", new Object[] {project, group, roots});
             return roots.toArray(new URL[0]);
         }
 
         @Override
         public ClassPathImplementation getContent() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            // semi-deprecated: should not be called
+            return null;
+        }
+
+        private void setRootDirs(List<File> srcDirs) {
+            this.srcDirs = srcDirs;
+            firePropertyChange(PROP_ROOTS, null, null);
         }
     }
 }

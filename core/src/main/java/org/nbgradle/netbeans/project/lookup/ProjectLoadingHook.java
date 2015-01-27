@@ -24,8 +24,8 @@ public class ProjectLoadingHook extends ProjectOpenedHook {
     }
 
     @Override
-    protected void projectOpened() {
-        LOG.log(Level.FINE, "Project {0} opened", project);
+    public void projectOpened() {
+        LOG.log(Level.INFO, "Project {0} opened", project);
         for (ModelProcessor processor : project.getLookup().lookupAll(ModelProcessor.class)) {
             LOG.log(Level.FINE, "Calling ModelProcessor {0} hook", processor);
             processor.loadFromGradle(phaser);
