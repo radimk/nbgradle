@@ -156,6 +156,7 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
             case ClassPath.SOURCE:
                 return sourceMain.classpath;
             case ClassPath.COMPILE:
+            case ClassPath.EXECUTE:
                 return compileMain.classpath;
             case ClassPath.BOOT:
                 return boot;
@@ -167,6 +168,7 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
             case ClassPath.SOURCE:
                 return sourceTest.classpath;
             case ClassPath.COMPILE:
+            case ClassPath.EXECUTE:
                 return compileTestCp;
             case ClassPath.BOOT:
                 return boot;
