@@ -5,25 +5,20 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Phaser;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.gradle.api.Nullable;
 import org.gradle.tooling.model.idea.IdeaContentRoot;
 import org.gradle.tooling.model.idea.IdeaDependency;
 import org.gradle.tooling.model.idea.IdeaModule;
 import org.gradle.tooling.model.idea.IdeaProject;
 import org.gradle.tooling.model.idea.IdeaSingleEntryLibraryDependency;
 import org.gradle.tooling.model.idea.IdeaSourceDirectory;
-import org.nbgradle.netbeans.models.ModelProvider;
+import org.nbgradle.netbeans.project.AbstractModelProducer;
 import org.nbgradle.netbeans.project.NbGradleConstants;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -45,18 +40,18 @@ import org.openide.util.Lookup;
  */
 @ProjectServiceProvider(service={ClassPathProvider.class, RegisteredClassPathProvider.class, ModelProcessor.class},
         projectType=NbGradleConstants.PROJECT_TYPE)
-public final class GradleProjectClasspathProvider implements ClassPathProvider, RegisteredClassPathProvider, ModelProcessor {
+public final class GradleProjectClasspathProvider extends AbstractModelProducer<IdeaProject>
+        implements ClassPathProvider, RegisteredClassPathProvider {
     private static final Logger LOG = Logger.getLogger(GradleProjectClasspathProvider.class.getName());
 
     private final @NonNull Project project;
-    private final @NonNull ModelProvider modelProvider;
 
     private final SourcePathResources sourceMain, sourceTest, compileMain, compileTest;
     private final ClassPath boot, compileTestCp, executeMain, executeTest;
 
     public GradleProjectClasspathProvider(Project project, Lookup baseLookup) {
+        super(baseLookup, IdeaProject.class);
         this.project = Preconditions.checkNotNull(project);
-        modelProvider = baseLookup.lookup(ModelProvider.class);
         boot = createBoot();
         sourceMain = new SourcePathResources("main sources");
         sourceTest = new SourcePathResources("test libs");
@@ -69,34 +64,7 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
     }
 
     @Override
-    public void loadFromGradle(final Phaser phaser) {
-        phaser.register();
-        ListenableFuture<IdeaProject> ideaModel = modelProvider.getModel(IdeaProject.class);
-        Futures.addCallback(ideaModel, new FutureCallback<IdeaProject>() {
-
-            @Override
-            public void onSuccess(IdeaProject model) {
-                try {
-                    LOG.log(Level.INFO, "Processing classpath from IDEA");
-                    updateClasspath(model);
-                } finally {
-                    phaser.arriveAndDeregister();
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                try {
-                    LOG.log(Level.INFO, "Cannot get classpath using idea model", t);
-                    updateClasspath(null);
-                } finally {
-                    phaser.arriveAndDeregister();
-                }
-            }
-        });
-    }
-
-    private void updateClasspath(@Nullable IdeaProject ideaModel) {
+    protected void updateFromModel(IdeaProject ideaModel) {
         if (ideaModel == null) {
             // maybe it is better to hold previous state.
             return;
