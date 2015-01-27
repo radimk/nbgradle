@@ -1,6 +1,5 @@
 package org.nbgradle.netbeans.java;
 
-import com.google.common.base.Function;
 import org.nbgradle.netbeans.project.ModelProcessor;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -9,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,8 +18,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.gradle.api.Nullable;
 import org.gradle.tooling.model.idea.IdeaContentRoot;
+import org.gradle.tooling.model.idea.IdeaDependency;
 import org.gradle.tooling.model.idea.IdeaModule;
 import org.gradle.tooling.model.idea.IdeaProject;
+import org.gradle.tooling.model.idea.IdeaSingleEntryLibraryDependency;
 import org.gradle.tooling.model.idea.IdeaSourceDirectory;
 import org.nbgradle.netbeans.models.ModelProvider;
 import org.nbgradle.netbeans.project.NbGradleConstants;
@@ -29,7 +29,6 @@ import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.project.Project;
-import org.netbeans.spi.java.classpath.ClassPathFactory;
 import org.netbeans.spi.java.classpath.ClassPathImplementation;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
@@ -50,16 +49,19 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
     private final @NonNull Project project;
     private final @NonNull ModelProvider modelProvider;
 
-    private final SourcePathResources sourceMain, sourceTest;
-    private final ClassPath boot, compileMain, compileTest, executeMain, executeTest;
+    private final SourcePathResources sourceMain, sourceTest, compileMain, compileTest;
+    private final ClassPath boot, compileTestCp, executeMain, executeTest;
 
     public GradleProjectClasspathProvider(Project project, Lookup baseLookup) {
         this.project = Preconditions.checkNotNull(project);
         modelProvider = baseLookup.lookup(ModelProvider.class);
         boot = createBoot();
-        sourceMain = new SourcePathResources("main");
-        sourceTest = new SourcePathResources("test");
-        compileMain = compileTest = executeMain = executeTest = null;
+        sourceMain = new SourcePathResources("main sources");
+        sourceTest = new SourcePathResources("test libs");
+        compileMain = new SourcePathResources("main libs");
+        compileTest  = new SourcePathResources("test libs");
+        compileTestCp = ClassPathSupport.createProxyClassPath(compileTest.classpath, sourceMain.classpath, compileMain.classpath);
+        executeMain = executeTest = null;
     }
 
     @Override
@@ -119,8 +121,24 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
                 srcTestDirs.add(ideaSrcDir.getDirectory());
             }
         }
+        List<File> srcMainLibs = new ArrayList<>();
+        List<File> srcTestLibs = new ArrayList<>();
+        for (IdeaDependency dep : module.getDependencies()) {
+            if (dep instanceof IdeaSingleEntryLibraryDependency) {
+                IdeaSingleEntryLibraryDependency lib = (IdeaSingleEntryLibraryDependency) dep;
+                if ("COMPILE".equals(lib.getScope().getScope())) {
+                    srcMainLibs.add(lib.getFile());
+                } else if ("TEST".equals(lib.getScope().getScope())) {
+                    srcTestLibs.add(lib.getFile());
+                } else {
+                    LOG.log(Level.INFO, "Library {0} not processed yet", lib);
+                }
+            }
+        }
         sourceMain.setRootDirs(srcMainDirs);
         sourceTest.setRootDirs(srcTestDirs);
+        compileMain.setRootDirs(srcMainLibs);
+        compileTest.setRootDirs(srcTestLibs);
     }
 
     @Override
@@ -129,6 +147,8 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
             switch (type) {
             case ClassPath.SOURCE:
                 return sourceMain.classpath;
+            case ClassPath.COMPILE:
+                return compileMain.classpath;
             case ClassPath.BOOT:
                 return boot;
             default:
@@ -138,6 +158,8 @@ public final class GradleProjectClasspathProvider implements ClassPathProvider, 
             switch (type) {
             case ClassPath.SOURCE:
                 return sourceTest.classpath;
+            case ClassPath.COMPILE:
+                return compileTestCp;
             case ClassPath.BOOT:
                 return boot;
             default:

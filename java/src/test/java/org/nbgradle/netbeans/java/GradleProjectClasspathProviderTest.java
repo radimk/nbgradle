@@ -1,5 +1,9 @@
 package org.nbgradle.netbeans.java;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,10 +17,11 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 import java.io.IOException;
+import org.assertj.core.api.Condition;
+import org.assertj.core.api.filter.Filters;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
 import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 
 import static org.junit.Assert.*;
@@ -54,8 +59,34 @@ public class GradleProjectClasspathProviderTest {
         ClassPath mainBootCp = ClassPath.getClassPath(foSrcMainJava, ClassPath.BOOT);
         // TODO boot CP according to selected platform
         assertThat(mainBootCp).isNotNull();
+        ClassPath mainCompileCp = ClassPath.getClassPath(foSrcMainJava, ClassPath.COMPILE);
+        assertThat(toArchiveRoots(mainCompileCp)).extracting("nameExt").containsOnlyOnce("commons-collections-3.2.jar");
+        // assertThat(mainCompileCp.getRoots()).extracting("nameExt").containsOnlyOnce("commons-collections-3.2.jar");
 
         ClassPath testCp = ClassPath.getClassPath(foSrcTestJava, ClassPath.SOURCE);
         assertThat(testCp.getRoots()).containsOnlyOnce(foSrcTestJava);
+        ClassPath testCompileCp = ClassPath.getClassPath(foSrcTestJava, ClassPath.COMPILE);
+        assertThat(toArchiveRoots(testCompileCp)).extracting("nameExt").containsOnlyOnce("commons-collections-3.2.jar", "junit-4.12.jar", "hamcrest-core-1.3.jar");
+        // TODO output from main compile
+    }
+
+    private static Iterable<FileObject> toArchiveRoots(ClassPath cpRoots) {
+        return Iterables.filter(Iterables.transform(
+                Lists.newArrayList(cpRoots.getRoots()),
+                new Function<FileObject, FileObject>() {
+                    @Override public FileObject apply(FileObject input) {
+                        return FileUtil.getArchiveFile(input);
+                    }
+                }),
+                Predicates.notNull());
+    }
+
+    private static Condition<FileObject> archiveRoot() {
+        return new Condition<FileObject>("FileObject is archive root") {
+            @Override
+            public boolean matches(FileObject value) {
+                return FileUtil.getArchiveFile(value) != null;
+            }
+        };
     }
 }
