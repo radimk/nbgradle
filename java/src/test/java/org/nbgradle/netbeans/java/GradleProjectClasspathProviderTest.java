@@ -15,9 +15,11 @@ import org.openide.filesystems.FileUtil;
 import java.io.IOException;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
 import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 
 import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 public class GradleProjectClasspathProviderTest {
     @Rule public final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider();
@@ -41,5 +43,16 @@ public class GradleProjectClasspathProviderTest {
         Project project = importAndOpenProject(sample.getDir().toFile());
         assertNotNull(project.getLookup().lookup(ClassPathProvider.class));
         project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
+
+        FileObject foSrcMainJava = project.getProjectDirectory().getFileObject("src/main/java");
+        FileObject foSrcTestJava = project.getProjectDirectory().getFileObject("src/test/java");
+        ClassPath mainCp = ClassPath.getClassPath(foSrcMainJava, ClassPath.SOURCE);
+        assertThat(mainCp.getRoots()).containsOnlyOnce(foSrcMainJava);
+        ClassPath mainBootCp = ClassPath.getClassPath(foSrcMainJava, ClassPath.BOOT);
+        // TODO boot CP according to selected platform
+        assertThat(mainBootCp).isNotNull();
+
+        ClassPath testCp = ClassPath.getClassPath(foSrcMainJava, ClassPath.SOURCE);
+        assertThat(testCp.getRoots()).containsOnlyOnce(foSrcTestJava);
     }
 }
