@@ -91,7 +91,6 @@ public class GradleActionProvider implements ActionProvider {
 
     @Override
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
-        LOGGER.log(Level.FINE, "isActionEnabled {0}", command);
         return taskNames(command, context) != null;
     }
 
@@ -100,9 +99,7 @@ public class GradleActionProvider implements ActionProvider {
         BuildInvocations tasks = null;
         try {
             tasks = modelSupplier.getModel(BuildInvocations.class).get();
-        } catch (InterruptedException e) {
-            LOGGER.log(Level.FINE, "cannot load tasks", e);
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             LOGGER.log(Level.FINE, "cannot load tasks", e);
         }
         if (tasks == null) {
@@ -146,7 +143,7 @@ public class GradleActionProvider implements ActionProvider {
         }
 
         @Override
-        public Iterable<String> getTaskNames() {
+        public final Iterable<String> getTaskNames() {
             return taskNames;
         }
 
