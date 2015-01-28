@@ -164,6 +164,7 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         pathRegistry.register(ClassPath.BOOT, new ClassPath[] {boot});
         pathRegistry.register(ClassPath.SOURCE, new ClassPath[] {sourceMain.classpath, sourceTest.classpath});
         pathRegistry.register(ClassPath.COMPILE, new ClassPath[] {compileMain.classpath, compileTestCp});
+        pathRegistry.register(ClassPath.EXECUTE, new ClassPath[] {compileMain.classpath, compileTestCp});
     }
 
     @Override
@@ -171,6 +172,7 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         GlobalPathRegistry pathRegistry = GlobalPathRegistry.getDefault();
         pathRegistry.unregister(ClassPath.SOURCE, new ClassPath[] {sourceMain.classpath, sourceTest.classpath});
         pathRegistry.unregister(ClassPath.COMPILE, new ClassPath[] {compileMain.classpath, compileTestCp});
+        pathRegistry.unregister(ClassPath.EXECUTE, new ClassPath[] {compileMain.classpath, compileTestCp});
         pathRegistry.unregister(ClassPath.BOOT, new ClassPath[] {boot});
     }
 
@@ -187,12 +189,12 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         @Override
         public URL[] getRoots() {
             List<URL> roots = Lists.newArrayList();
-            try {
-                for (File srcDir : srcDirs) {
+            for (File srcDir : srcDirs) {
+                try {
                     roots.add(FileUtil.urlForArchiveOrDir(srcDir));
+                } catch (Exception ex) {
+                    LOG.log(Level.FINE, "claspath entry " + srcDir + " cannot be added", ex);
                 }
-            } catch (Exception ex) {
-                LOG.log(Level.FINE, "stub claspath cannot be created", ex);
             }
             LOG.log(Level.INFO, "source roots in {0}/{1}: {2}", new Object[] {project, group, roots});
             return roots.toArray(new URL[0]);
