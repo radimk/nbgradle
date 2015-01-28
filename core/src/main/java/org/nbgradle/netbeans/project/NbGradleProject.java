@@ -76,4 +76,9 @@ public class NbGradleProject implements Project {
     public Lookup getLookup() {
         return lookup;
     }
+
+    @Override
+    public String toString() {
+        return "NbGradleProject{" + "projectDirectory=" + projectDirectory + '}';
+    }
 }

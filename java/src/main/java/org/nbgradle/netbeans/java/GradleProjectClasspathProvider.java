@@ -18,6 +18,7 @@ import org.gradle.tooling.model.idea.IdeaModule;
 import org.gradle.tooling.model.idea.IdeaProject;
 import org.gradle.tooling.model.idea.IdeaSingleEntryLibraryDependency;
 import org.gradle.tooling.model.idea.IdeaSourceDirectory;
+import org.nbgradle.netbeans.models.idea.IdeaModelHelper;
 import org.nbgradle.netbeans.project.AbstractModelProducer;
 import org.nbgradle.netbeans.project.NbGradleConstants;
 import org.netbeans.api.annotations.common.NonNull;
@@ -46,7 +47,7 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
 
     private final @NonNull Project project;
 
-    private final SourcePathResources sourceMain, sourceTest, compileMain, compileTest;
+    private final SourcePathResources sourceMain, sourceTest, classesMain, classesTest, compileMain, compileTest;
     private final ClassPath boot, compileTestCp, executeMain, executeTest;
 
     public GradleProjectClasspathProvider(Project project, Lookup baseLookup) {
@@ -55,11 +56,12 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         boot = createBoot();
         sourceMain = new SourcePathResources("main sources");
         sourceTest = new SourcePathResources("test libs");
+        classesMain = new SourcePathResources("main classes");
+        classesTest = new SourcePathResources("test classes");
         compileMain = new SourcePathResources("main libs");
         compileTest  = new SourcePathResources("test libs");
         compileTestCp = ClassPathSupport.createProxyClassPath(
-                // need to add build/classes/main
-                compileTest.classpath, /*sourceMain.classpath, */compileMain.classpath);
+                compileTest.classpath, classesMain.classpath, compileMain.classpath);
         executeMain = executeTest = null;
     }
 
@@ -69,28 +71,25 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
             // maybe it is better to hold previous state.
             return;
         }
-        IdeaModule module = Iterables.find(
-                ideaModel.getModules(),
-                new Predicate<IdeaModule>() {
-                    @Override
-                    public boolean apply(IdeaModule input) {
-                        return ":".equals(input.getGradleProject().getPath());
-                    }
-                },
-                null);
+
+        IdeaModule module = new IdeaModelHelper(ideaModel).moduleForProject(":");
         if (module == null) {
             LOG.log(Level.INFO, "Cannot get classpath for this subproject");
             return;
         }
 
         List<File> srcMainDirs = new ArrayList<>();
+        List<File> classesMainDirs = new ArrayList<>();
         List<File> srcTestDirs = new ArrayList<>();
+        List<File> classesTestDirs = new ArrayList<>();
         for (IdeaContentRoot contentRoot : module.getContentRoots()) {
             for (IdeaSourceDirectory ideaSrcDir : contentRoot.getSourceDirectories()) {
                 srcMainDirs.add(ideaSrcDir.getDirectory());
+                tryAddClassesDir(classesMainDirs, ideaSrcDir.getDirectory());
             }
             for (IdeaSourceDirectory ideaSrcDir : contentRoot.getTestDirectories()) {
                 srcTestDirs.add(ideaSrcDir.getDirectory());
+                tryAddClassesDir(classesTestDirs, ideaSrcDir.getDirectory());
             }
         }
         List<File> srcMainLibs = new ArrayList<>();
@@ -113,6 +112,8 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         }
         sourceMain.setRootDirs(srcMainDirs);
         sourceTest.setRootDirs(srcTestDirs);
+        classesMain.setRootDirs(classesMainDirs);
+        classesTest.setRootDirs(classesTestDirs);
         compileMain.setRootDirs(srcMainLibs);
         compileTest.setRootDirs(srcTestLibs);
     }
@@ -174,6 +175,19 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         pathRegistry.unregister(ClassPath.COMPILE, new ClassPath[] {compileMain.classpath, compileTestCp});
         pathRegistry.unregister(ClassPath.EXECUTE, new ClassPath[] {compileMain.classpath, compileTestCp});
         pathRegistry.unregister(ClassPath.BOOT, new ClassPath[] {boot});
+    }
+
+    private void tryAddClassesDir(List<File> classesDirs, File srcDir) {
+        if (!"java".equals(srcDir.getName()) || srcDir.getParentFile() == null
+                || srcDir.getParentFile().getParentFile() == null
+                || !"src".equals(srcDir.getParentFile().getParentFile().getName())) {
+            return;
+        }
+        String sourceSetName = srcDir.getParentFile().getName();
+        File classesDir = new File(
+                FileUtil.toFile(project.getProjectDirectory()),
+                "build" + File.separator + "classes" + File.separator + sourceSetName);
+        classesDirs.add(classesDir);
     }
 
     private class SourcePathResources extends PathResourceBase {
