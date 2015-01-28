@@ -37,7 +37,7 @@ public abstract class AbstractModelProducer<M> implements ModelProcessor {
             @Override
             public void onSuccess(M model) {
                 try {
-                    LOG.log(Level.INFO, "Processing source from IDEA");
+                    LOG.log(Level.INFO, "Model {0} loaded", modelClz.getSimpleName());
                     updateFromModel(model);
                 } finally {
                     phaser.arriveAndDeregister();
@@ -47,7 +47,7 @@ public abstract class AbstractModelProducer<M> implements ModelProcessor {
             @Override
             public void onFailure(Throwable t) {
                 try {
-                    LOG.log(Level.INFO, "Cannot get source level using idea model", t);
+                    LOG.log(Level.INFO, "Model " + modelClz.getSimpleName() + " was not loaded", t);
                     updateFromModel(null);
                 } finally {
                     phaser.arriveAndDeregister();
