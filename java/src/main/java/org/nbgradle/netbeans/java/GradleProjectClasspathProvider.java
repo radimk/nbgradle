@@ -159,10 +159,11 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
 
     @Override
     public void register() {
+        LOG.log(Level.FINE, "Registering classpaths for {0}", project);
         GlobalPathRegistry pathRegistry = GlobalPathRegistry.getDefault();
+        pathRegistry.register(ClassPath.BOOT, new ClassPath[] {boot});
         pathRegistry.register(ClassPath.SOURCE, new ClassPath[] {sourceMain.classpath, sourceTest.classpath});
         pathRegistry.register(ClassPath.COMPILE, new ClassPath[] {compileMain.classpath, compileTestCp});
-        pathRegistry.register(ClassPath.BOOT, new ClassPath[] {boot});
     }
 
     @Override

@@ -63,6 +63,12 @@ public class GradleProjectClasspathProviderTest {
         assertThat(toArchiveRoots(mainCompileCp)).extracting("nameExt").containsOnlyOnce("commons-collections-3.2.jar");
         // assertThat(mainCompileCp.getRoots()).extracting("nameExt").containsOnlyOnce("commons-collections-3.2.jar");
 
+        // source under the root get the same classpath
+        FileObject foJava = project.getProjectDirectory().getFileObject("src/main/java/org/gradle/Person.java");
+        assertThat(ClassPath.getClassPath(foJava, ClassPath.SOURCE)).isSameAs(mainCp);
+        assertThat(ClassPath.getClassPath(foJava, ClassPath.BOOT)).isSameAs(mainBootCp);
+        assertThat(ClassPath.getClassPath(foJava, ClassPath.COMPILE)).isSameAs(mainCompileCp);
+
         ClassPath testCp = ClassPath.getClassPath(foSrcTestJava, ClassPath.SOURCE);
         assertThat(testCp.getRoots()).containsOnlyOnce(foSrcTestJava);
         ClassPath testCompileCp = ClassPath.getClassPath(foSrcTestJava, ClassPath.COMPILE);

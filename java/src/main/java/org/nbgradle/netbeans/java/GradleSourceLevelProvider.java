@@ -64,7 +64,8 @@ public final class GradleSourceLevelProvider extends AbstractModelProducer<IdeaP
 
     private class SourceLevelResult implements SourceLevelQueryImplementation2.Result {
         private final ChangeSupport pcs = new ChangeSupport(this);
-        private String sourceLevel;
+        // defaults to 1.5
+        private String sourceLevel = "1.5";
 
         @Override
         public String getSourceLevel() {
