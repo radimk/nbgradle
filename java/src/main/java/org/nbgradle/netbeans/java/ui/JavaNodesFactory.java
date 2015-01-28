@@ -49,13 +49,16 @@ public class JavaNodesFactory implements NodeFactory {
                 return Collections.emptyList();
             }
             Sources sources = getSources();
-            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-
-            List<SourceGroupKey> result = new ArrayList<>(groups.length);
-            for (SourceGroup sg : groups) {
-                result.add(new SourceGroupKey(sg));
-            }
+            List<SourceGroupKey> result = new ArrayList<>();
+            addSourceGroup(result, sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA));
+            addSourceGroup(result, sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_RESOURCES));
             return result;
+        }
+
+        private void addSourceGroup(List<SourceGroupKey> keys, SourceGroup[] groups) {
+            for (SourceGroup sg : groups) {
+                keys.add(new SourceGroupKey(sg));
+            }
         }
 
         @Override
