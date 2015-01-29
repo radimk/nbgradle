@@ -8,7 +8,6 @@ import org.openide.nodes.Node;
 
 /**
  * shows maven project files.
- * @author  Milos Kleint
  */
 @NodeFactory.Registration(projectType=NbGradleConstants.PROJECT_TYPE,position=700)
 public class ProjectFilesNodeFactory implements NodeFactory {
