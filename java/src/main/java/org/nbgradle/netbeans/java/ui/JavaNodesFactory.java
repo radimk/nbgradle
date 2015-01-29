@@ -52,6 +52,8 @@ public class JavaNodesFactory implements NodeFactory {
             List<SourceGroupKey> result = new ArrayList<>();
             addSourceGroup(result, sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA));
             addSourceGroup(result, sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_RESOURCES));
+            addSourceGroup(result, sources.getSourceGroups(NbGradleConstants.SOURCES_TYPE_TEST_JAVA));
+            addSourceGroup(result, sources.getSourceGroups(NbGradleConstants.SOURCES_TYPE_TEST_RESOURCES));
             return result;
         }
 

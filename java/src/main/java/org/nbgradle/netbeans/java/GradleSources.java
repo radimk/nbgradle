@@ -81,15 +81,18 @@ public class GradleSources extends AbstractModelProducer<IdeaProject> implements
                 LOG.log(Level.INFO, "No source group for {0}", project);
                 sourcesByType.clear();
             } else {
-                sourcesByType = createSrcMainJava(module);
+                sourcesByType = createSources(module);
             }
         }
         cs.fireChange();
     }
 
-    private Map<String, SourceGroup[]> createSrcMainJava(IdeaModule module) {
+    private Map<String, SourceGroup[]> createSources(IdeaModule module) {
+        Map<String, SourceGroup[]> newSources = new HashMap<>();
         List<SourceGroup> groupsJava = new ArrayList<>();
         List<SourceGroup> groupsResources = new ArrayList<>();
+        List<SourceGroup> groupsTestJava = new ArrayList<>();
+        List<SourceGroup> groupsTestResources = new ArrayList<>();
         for (IdeaContentRoot contentRoot : module.getContentRoots()) {
             for (IdeaSourceDirectory ideaSrcDir : contentRoot.getSourceDirectories()) {
                 final String srcName = ideaSrcDir.getDirectory().getName();
@@ -101,11 +104,22 @@ public class GradleSources extends AbstractModelProducer<IdeaProject> implements
                             FileUtil.toFileObject(ideaSrcDir.getDirectory()), srcName, "Resources", null, null));
                 }
             }
+            for (IdeaSourceDirectory ideaSrcDir : contentRoot.getTestDirectories()) {
+                final String srcName = ideaSrcDir.getDirectory().getName();
+                if (!"resources".equals(srcName)) {
+                    groupsTestJava.add(GenericSources.group(project,
+                            FileUtil.toFileObject(ideaSrcDir.getDirectory()), srcName, "Test Packages " + srcName, null, null));
+                } else {
+                    groupsTestResources.add(GenericSources.group(project,
+                            FileUtil.toFileObject(ideaSrcDir.getDirectory()), srcName, "Test Resources", null, null));
+                }
+            }
         }
         LOG.log(Level.FINE, "source groups {0}: {1}", new Object[] {JavaProjectConstants.SOURCES_TYPE_JAVA, groupsJava});
-        Map<String, SourceGroup[]> newSources = new HashMap<>();
         newSources.put(JavaProjectConstants.SOURCES_TYPE_JAVA, groupsJava.toArray(new SourceGroup[0]));
         newSources.put(JavaProjectConstants.SOURCES_TYPE_RESOURCES, groupsResources.toArray(new SourceGroup[0]));
+        newSources.put(NbGradleConstants.SOURCES_TYPE_TEST_JAVA, groupsTestJava.toArray(new SourceGroup[0]));
+        newSources.put(NbGradleConstants.SOURCES_TYPE_TEST_RESOURCES, groupsTestResources.toArray(new SourceGroup[0]));
         return newSources;
     }
 
