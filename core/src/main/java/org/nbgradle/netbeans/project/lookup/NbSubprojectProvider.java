@@ -11,9 +11,9 @@ import java.util.Set;
  * Created by radim on 11/9/14.
  */
 public class NbSubprojectProvider implements SubprojectProvider {
-    private final ProjectTreeInformation projectTree;
+    private final ProjectInfoNode projectTree;
 
-    public NbSubprojectProvider(ProjectTreeInformation projectTree) {
+    public NbSubprojectProvider(ProjectInfoNode projectTree) {
         this.projectTree = projectTree;
     }
 

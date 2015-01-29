@@ -2,7 +2,7 @@
  */
 package org.nbgradle.netbeans.models;
 
-import org.nbgradle.netbeans.project.lookup.ProjectTreeInformation;
+import org.nbgradle.netbeans.project.lookup.ProjectInfoNode;
 
 /**
  *
@@ -11,7 +11,7 @@ import org.nbgradle.netbeans.project.lookup.ProjectTreeInformation;
 public interface GradleContext {
 
     GradleBuildSettings getBuildSettings();
-    ProjectTreeInformation getProjectTreeInformation();
+    ProjectInfoNode getProjectTreeInformation();
     GradleRunner getRunner();
     ModelProvider getModelProvider();
     // ModelProvider getModelProvider(GradleOperationCustomizer opCustomizer);

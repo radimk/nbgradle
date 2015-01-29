@@ -16,28 +16,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.nbgradle.netbeans.models.GradleContext;
 import org.nbgradle.netbeans.models.GradleContextProvider;
+import org.nbgradle.netbeans.project.lookup.GradleProjectInformation;
 import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
+import org.nbgradle.netbeans.project.lookup.ProjectInfoNode;
+import org.openide.filesystems.FileUtil;
 
 public class NbGradleProject implements Project {
     private static final Logger LOG = Logger.getLogger(NbGradleProject.class.getName());
 
     private final FileObject projectDirectory;
-    private final File projectDir;
     private final Lookup lookup;
 
-    public NbGradleProject(GradleContextProvider contextProvider, FileObject projectDirectory, File projectDir) {
+    public NbGradleProject(GradleContext gradleContext, FileObject projectDirectory, ProjectInfoNode currentProject) {
         this.projectDirectory = Preconditions.checkNotNull(projectDirectory);
-        this.projectDir = Preconditions.checkNotNull(projectDir);
-        lookup = createLookup(contextProvider, projectDir);
-        LOG.log(Level.FINE, "Created Gradle project for {0}", projectDir.getAbsolutePath());
+        lookup = createLookup(gradleContext, currentProject);
+        LOG.log(Level.FINE, "Created Gradle project for {0}", projectDirectory);
     }
 
-    private Lookup createLookup(GradleContextProvider contextProvider, final File projectDir) {
-        GradleContext gradleContext = contextProvider.forProject(projectDir);
+    private Lookup createLookup(GradleContext gradleContext, ProjectInfoNode currentProject) {
+
         Lookup base = Lookups.fixed(
                 this,
                 gradleContext.getBuildSettings(),
-                new DefaultGradleProjectInformation(this, ":"),
+                new DefaultGradleProjectInformation(this, currentProject.getPath()),
                 new NbSubprojectProvider(gradleContext.getProjectTreeInformation()),
                 gradleContext.getRunner(),
                 gradleContext.getModelProvider(),

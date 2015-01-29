@@ -9,7 +9,7 @@ import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
-import org.nbgradle.netbeans.project.lookup.ProjectTreeInformation;
+import org.nbgradle.netbeans.project.lookup.ProjectInfoNode;
 import org.nbgradle.netbeans.project.model.*;
 
 import javax.xml.bind.JAXBContext;
@@ -25,10 +25,10 @@ import java.util.List;
 public class GradleProjectImporter {
 
     public static class ImportedData {
-        public final ProjectTreeInformation projectTree;
+        public final ProjectInfoNode projectTree;
         public final GradleBuildSettings buildSettings;
 
-        public ImportedData(ProjectTreeInformation projectTree, GradleBuildSettings buildSettings) {
+        public ImportedData(ProjectInfoNode projectTree, GradleBuildSettings buildSettings) {
             this.projectTree = projectTree;
             this.buildSettings = buildSettings;
         }

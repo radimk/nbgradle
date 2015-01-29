@@ -36,7 +36,7 @@ CreateFromTemplateAttributesProvider
      */
     def 'ProjectInformation'() {
         when:
-        Project prj = new NbGradleProject(contextProvider(), prjDir, projectDir)
+        Project prj = new NbGradleProject(gradleContext(), prjDir, currentProjectNode())
         def pi = prj.lookup.lookup(org.netbeans.api.project.ProjectInformation)
 
         then:
@@ -47,7 +47,7 @@ CreateFromTemplateAttributesProvider
 
     def 'logical view provider'() {
         when:
-        Project prj = new NbGradleProject(contextProvider(), prjDir, projectDir)
+        Project prj = new NbGradleProject(gradleContext(), prjDir, currentProjectNode())
         def viewProvider = prj.lookup.lookup(LogicalViewProvider)
 
         then:
@@ -62,7 +62,7 @@ CreateFromTemplateAttributesProvider
 
     def 'project customizes provider'() {
         when:
-        Project prj = new NbGradleProject(contextProvider(), prjDir, projectDir)
+        Project prj = new NbGradleProject(gradleContext(), prjDir, currentProjectNode())
         def provider = prj.lookup.lookup(CustomizerProvider)
 
         then:
@@ -71,7 +71,7 @@ CreateFromTemplateAttributesProvider
 
     def 'subproject provider'() {
         when:
-        Project prj = new NbGradleProject(contextProvider(), prjDir, projectDir)
+        Project prj = new NbGradleProject(gradleContext(), prjDir, currentProjectNode())
         def provider = prj.lookup.lookup(SubprojectProvider)
 
         then:

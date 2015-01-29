@@ -13,7 +13,7 @@ import java.io.InputStream;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
 import org.nbgradle.netbeans.project.NbGradleConstants;
 import org.nbgradle.netbeans.project.lookup.NbGradleOperationCustomizer;
-import org.nbgradle.netbeans.project.lookup.ProjectTreeInformation;
+import org.nbgradle.netbeans.project.lookup.ProjectInfoNode;
 
 /**
  *
@@ -55,11 +55,11 @@ public class DefaultGradleContextProvider implements GradleContextProvider {
 
     private static class DefaultGradleContext implements GradleContext {
         private final GradleBuildSettings buildSettings;
-        private final ProjectTreeInformation projectTreeInformation;
+        private final ProjectInfoNode projectTreeInformation;
         private final GradleRunner runner;
         private final ModelProvider defaultModelProvider;
 
-        public DefaultGradleContext(GradleBuildSettings buildSettings, ProjectTreeInformation projectTreeInformation, GradleIdeConnector connector) {
+        public DefaultGradleContext(GradleBuildSettings buildSettings, ProjectInfoNode projectTreeInformation, GradleIdeConnector connector) {
             this.buildSettings = buildSettings;
             this.projectTreeInformation = projectTreeInformation;
             runner = new DefaultGradleToolingRunner(connector, new NbGradleOperationCustomizer());
@@ -77,7 +77,7 @@ public class DefaultGradleContextProvider implements GradleContextProvider {
         }
 
         @Override
-        public ProjectTreeInformation getProjectTreeInformation() {
+        public ProjectInfoNode getProjectTreeInformation() {
             return projectTreeInformation;
         }
 

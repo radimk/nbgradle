@@ -6,14 +6,10 @@ import org.gradle.tooling.model.DomainObjectSet
 import org.gradle.tooling.model.gradle.BasicGradleProject
 import org.nbgradle.netbeans.models.GradleBuildSettings
 import org.nbgradle.netbeans.models.GradleContext
-import org.nbgradle.netbeans.models.GradleContextProvider
 import org.nbgradle.netbeans.models.GradleRunner
 import org.nbgradle.netbeans.models.ModelProvider
-import org.nbgradle.netbeans.project.lookup.GradleProjectInformation
-import org.nbgradle.netbeans.project.lookup.ProjectTreeInformation
+import org.nbgradle.netbeans.project.lookup.ProjectInfoNode
 import org.nbgradle.netbeans.project.model.DefaultDistributionSpec
-import org.netbeans.api.project.Project
-import org.netbeans.spi.project.ActionProvider
 import org.openide.filesystems.FileObject
 import spock.lang.Specification
 
@@ -44,15 +40,22 @@ class AbstractProjectSpec extends Specification {
         projectDir = Mock(File)
     }
 
-    def contextProvider() {
-        GradleContextProvider contextProvider = Mock(GradleContextProvider)
+    def gradleContext() {
         GradleContext context = Mock(GradleContext)
-        _ * contextProvider.forProject(projectDir) >> context
         _ * context.buildSettings >> Mock(GradleBuildSettings)
-        _ * context.projectTreeInformation >> Mock(ProjectTreeInformation)
+        _ * context.projectTreeInformation >> Mock(ProjectInfoNode)
         _ * context.runner >> Mock(GradleRunner)
         _ * context.modelProvider >> Mock(ModelProvider)
 
-        contextProvider
+        context
+    }
+
+    def currentProjectNode() {
+        ProjectInfoNode prjNode = Mock(ProjectInfoNode)
+        _ * prjNode.path >> ':'
+        _ * prjNode.projectDirectory >> projectDir
+        _ * prjNode.name >> 'testProject'
+        _ * prjNode.childProjects >> []
+        prjNode
     }
 }
