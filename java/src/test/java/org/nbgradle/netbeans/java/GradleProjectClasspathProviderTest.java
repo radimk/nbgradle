@@ -17,7 +17,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 import java.io.IOException;
-import org.assertj.core.api.Condition;
 import org.junit.Ignore;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
 import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
@@ -31,22 +30,10 @@ public class GradleProjectClasspathProviderTest {
     @Rule public final TestNameTestDirectoryProvider temporaryFolder = new TestNameTestDirectoryProvider();
     @Rule public Sample sample = new Sample(temporaryFolder);
 
-    private static Project importAndFindProject(File prjDir) throws IOException {
-        FileObject prjDirFo = FileUtil.toFileObject(FileUtil.normalizeFile(prjDir));
-        DefaultGradleBuildSettings buildSettings = new DefaultGradleBuildSettings();
-        GradleProjectImporter importer = new GradleProjectImporter();
-        importer.importProject(buildSettings, prjDir);
-        prjDirFo.refresh();
-        ProjectManager.getDefault().clearNonProjectCache();
-        Project project = ProjectManager.getDefault().findProject(prjDirFo);
-        assertNotNull("Project in " + prjDir, project);
-        return project;
-    }
-
     @Test
     @UsesSample("java/quickstart")
     public void quickstart() throws Exception {
-        Project project = importAndFindProject(sample.getDir().toFile());
+        Project project = new GradleProjectFixture(sample.getDir().toFile()).importAndFindProject();
 
         assertNotNull(project.getLookup().lookup(ClassPathProvider.class));
         project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
@@ -80,9 +67,9 @@ public class GradleProjectClasspathProviderTest {
     @Ignore
     @UsesSample("java/multiproject")
     public void multiproject() throws Exception {
-        Project project = importAndFindProject(sample.getDir().toFile());
-        Project apiProject = importAndFindProject(sample.getDir().resolve("api").toFile());
-        Project sharedProject = importAndFindProject(sample.getDir().resolve("shared").toFile());
+        Project project = new GradleProjectFixture(sample.getDir().toFile()).importAndFindProject();
+        Project apiProject = new GradleProjectFixture(sample.getDir().resolve("api").toFile()).importAndFindProject();
+        Project sharedProject = new GradleProjectFixture(sample.getDir().resolve("shared").toFile()).importAndFindProject();
 
         project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
         project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
