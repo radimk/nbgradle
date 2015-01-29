@@ -1,9 +1,5 @@
 package org.nbgradle.netbeans.models;
 
-import org.nbgradle.netbeans.models.GradleBuildWrapper;
-import org.nbgradle.netbeans.models.GradleBuildSettings;
-import org.nbgradle.netbeans.models.GradleOperationCustomizer;
-import org.nbgradle.netbeans.models.ModelProvider;
 import org.junit.Test;
 
 import java.io.File;

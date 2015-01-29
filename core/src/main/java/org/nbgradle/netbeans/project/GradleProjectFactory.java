@@ -13,6 +13,8 @@ import org.openide.util.ImageUtilities;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.nbgradle.netbeans.models.DefaultGradleContextProvider;
+import org.nbgradle.netbeans.models.GradleContextProvider;
 
 @org.openide.util.lookup.ServiceProvider(service = ProjectFactory.class)
 public class GradleProjectFactory implements ProjectFactory2 {
@@ -20,6 +22,8 @@ public class GradleProjectFactory implements ProjectFactory2 {
 
     @StaticResource
     public static final String PROJECT_ICON_PATH = "org/nbgradle/netbeans/project/gradle.png";
+
+    private final GradleContextProvider contextProvider = new DefaultGradleContextProvider();
 
     @Override
     public ProjectManager.Result isProject2(FileObject projectDirectory) {
@@ -41,7 +45,7 @@ public class GradleProjectFactory implements ProjectFactory2 {
             return null;
         }
         try {
-            return new NbGradleProject(projectDirectory, FileUtil.toFile(projectDirectory));
+            return new NbGradleProject(contextProvider, projectDirectory, FileUtil.toFile(projectDirectory));
         } catch (ProjectImportException pie) {
             LOG.log(Level.FINE, "Cannot load project.", pie);
             return null;

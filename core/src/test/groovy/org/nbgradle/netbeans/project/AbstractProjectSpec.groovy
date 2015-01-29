@@ -4,7 +4,13 @@ import com.google.common.io.ByteSink
 import com.google.common.io.FileBackedOutputStream
 import org.gradle.tooling.model.DomainObjectSet
 import org.gradle.tooling.model.gradle.BasicGradleProject
+import org.nbgradle.netbeans.models.GradleBuildSettings
+import org.nbgradle.netbeans.models.GradleContext
+import org.nbgradle.netbeans.models.GradleContextProvider
+import org.nbgradle.netbeans.models.GradleRunner
+import org.nbgradle.netbeans.models.ModelProvider
 import org.nbgradle.netbeans.project.lookup.GradleProjectInformation
+import org.nbgradle.netbeans.project.lookup.ProjectTreeInformation
 import org.nbgradle.netbeans.project.model.DefaultDistributionSpec
 import org.netbeans.api.project.Project
 import org.netbeans.spi.project.ActionProvider
@@ -36,5 +42,17 @@ class AbstractProjectSpec extends Specification {
         _ * settingsXml.inputStream >> fbos.asByteSource().openStream()
 
         projectDir = Mock(File)
+    }
+
+    def contextProvider() {
+        GradleContextProvider contextProvider = Mock(GradleContextProvider)
+        GradleContext context = Mock(GradleContext)
+        _ * contextProvider.forProject(projectDir) >> context
+        _ * context.buildSettings >> Mock(GradleBuildSettings)
+        _ * context.projectTreeInformation >> Mock(ProjectTreeInformation)
+        _ * context.runner >> Mock(GradleRunner)
+        _ * context.modelProvider >> Mock(ModelProvider)
+
+        contextProvider
     }
 }

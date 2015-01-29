@@ -16,7 +16,7 @@ class GradleActionProviderSpec extends AbstractProjectSpec {
 
     def 'in lookup'() {
         when:
-        Project prj = new NbGradleProject(prjDir, projectDir)
+        Project prj = new NbGradleProject(contextProvider(), prjDir, projectDir)
         def actionProvider = prj.lookup.lookup(ActionProvider)
 
         then:

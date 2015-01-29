@@ -48,4 +48,32 @@ public class GradleProjectFactoryTest {
         project = ProjectManager.getDefault().findProject(prjDir);
         assertNotNull("Project in " + prjDir, project);
     }
+
+    @Test
+    @UsesSample("java/multiproject")
+    public void multiproject() throws IOException {
+        FileObject prjDir = FileUtil.toFileObject(FileUtil.normalizeFile(sample.getDir().toFile()));
+        assertNotNull(prjDir);
+        Project project = ProjectManager.getDefault().findProject(prjDir);
+        assertNull("Not yet a project in " + prjDir, project);
+
+        DefaultGradleBuildSettings buildSettings = new DefaultGradleBuildSettings();
+        GradleProjectImporter importer = new GradleProjectImporter();
+        importer.importProject(buildSettings, sample.getDir().toFile());
+        prjDir.refresh();
+        ProjectManager.getDefault().clearNonProjectCache();
+        project = ProjectManager.getDefault().findProject(prjDir);
+        assertNotNull("Project in " + prjDir, project);
+        assertEquals(":", project.getLookup().lookup(NbGradleProjectPath.class).getProjectPath());
+
+        FileObject apiDir = prjDir.getFileObject("api");
+        project = ProjectManager.getDefault().findProject(apiDir);
+        assertNotNull(":api in " + apiDir, project);
+        assertEquals(":api", project.getLookup().lookup(NbGradleProjectPath.class).getProjectPath());
+
+        FileObject sharedDir = prjDir.getFileObject("shared");
+        project = ProjectManager.getDefault().findProject(sharedDir);
+        assertNotNull(":shared in " + apiDir, project);
+        assertEquals(":shared", project.getLookup().lookup(NbGradleProjectPath.class).getProjectPath());
+    }
 }
