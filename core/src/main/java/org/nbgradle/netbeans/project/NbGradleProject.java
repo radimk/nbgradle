@@ -11,15 +11,11 @@ import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
-import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.nbgradle.netbeans.models.GradleContext;
-import org.nbgradle.netbeans.models.GradleContextProvider;
-import org.nbgradle.netbeans.project.lookup.GradleProjectInformation;
 import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 import org.nbgradle.netbeans.project.lookup.ProjectInfoNode;
-import org.openide.filesystems.FileUtil;
 
 public class NbGradleProject implements Project {
     private static final Logger LOG = Logger.getLogger(NbGradleProject.class.getName());

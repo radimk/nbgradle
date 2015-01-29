@@ -2,7 +2,6 @@ package org.nbgradle.netbeans.project.lookup;
 
 import com.google.common.base.Preconditions;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectInformation;
 
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
