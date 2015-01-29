@@ -18,7 +18,7 @@ import org.openide.filesystems.FileUtil;
 
 import java.io.IOException;
 import org.assertj.core.api.Condition;
-import org.assertj.core.api.filter.Filters;
+import org.junit.Ignore;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
 import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -76,6 +76,19 @@ public class GradleProjectClasspathProviderTest {
         // TODO output from main compile
     }
 
+    @Test
+    @Ignore
+    @UsesSample("java/multiproject")
+    public void multiproject() throws Exception {
+        Project project = importAndFindProject(sample.getDir().toFile());
+        Project apiProject = importAndFindProject(sample.getDir().resolve("api").toFile());
+        Project sharedProject = importAndFindProject(sample.getDir().resolve("shared").toFile());
+
+        project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
+        project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
+
+    }
+
     private static Iterable<FileObject> toArchiveRoots(ClassPath cpRoots) {
         return Iterables.filter(Iterables.transform(
                 Lists.newArrayList(cpRoots.getRoots()),
@@ -85,14 +98,5 @@ public class GradleProjectClasspathProviderTest {
                     }
                 }),
                 Predicates.notNull());
-    }
-
-    private static Condition<FileObject> archiveRoot() {
-        return new Condition<FileObject>("FileObject is archive root") {
-            @Override
-            public boolean matches(FileObject value) {
-                return FileUtil.getArchiveFile(value) != null;
-            }
-        };
     }
 }
