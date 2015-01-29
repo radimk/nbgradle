@@ -2,8 +2,6 @@ package org.nbgradle.netbeans.java;
 
 import org.nbgradle.netbeans.project.ModelProcessor;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.net.URL;
@@ -25,6 +23,7 @@ import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.platform.JavaPlatformManager;
+import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.java.classpath.ClassPathImplementation;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
@@ -121,28 +120,49 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
     @Override
     public ClassPath findClassPath(FileObject fo, String type) {
         if (inSources(fo, sourceMain.classpath)) {
-            switch (type) {
-            case ClassPath.SOURCE:
-                return sourceMain.classpath;
-            case ClassPath.COMPILE:
-            case ClassPath.EXECUTE:
-                return compileMain.classpath;
-            case ClassPath.BOOT:
-                return boot;
-            default:
-                return null;
-            }
+            return mainClassPath(type);
         } else if (inSources(fo, sourceTest.classpath)) {
-            switch (type) {
-            case ClassPath.SOURCE:
-                return sourceTest.classpath;
-            case ClassPath.COMPILE:
-            case ClassPath.EXECUTE:
-                return compileTestCp;
-            case ClassPath.BOOT:
-                return boot;
-            default:
-                return null;
+            return testClassPath(type);
+        }
+        return null;
+    }
+
+    private ClassPath testClassPath(String type) {
+        switch (type) {
+        case ClassPath.SOURCE:
+            return sourceTest.classpath;
+        case ClassPath.COMPILE:
+        case ClassPath.EXECUTE:
+            return compileTestCp;
+        case ClassPath.BOOT:
+            return boot;
+        default:
+            return null;
+        }
+    }
+
+    private ClassPath mainClassPath(String type) {
+        switch (type) {
+        case ClassPath.SOURCE:
+            return sourceMain.classpath;
+        case ClassPath.COMPILE:
+        case ClassPath.EXECUTE:
+            return compileMain.classpath;
+        case ClassPath.BOOT:
+            return boot;
+        default:
+            return null;
+        }
+    }
+
+    @Override
+    public ClassPath findClassPath(String sourceType, String type) {
+        if (null != sourceType) {
+            switch (sourceType) {
+            case JavaProjectConstants.SOURCES_TYPE_JAVA:
+                return mainClassPath(type);
+            case NbGradleConstants.SOURCES_TYPE_TEST_JAVA:
+                return testClassPath(type);
             }
         }
         return null;

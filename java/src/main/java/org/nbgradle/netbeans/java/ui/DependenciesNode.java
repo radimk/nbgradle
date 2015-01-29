@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
+import org.nbgradle.netbeans.java.RegisteredClassPathProvider;
 import org.nbgradle.netbeans.project.NbGradleConstants;
 import org.nbgradle.netbeans.project.ui.UiUtils;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -24,7 +25,6 @@ import org.netbeans.api.java.project.JavaProjectConstants;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.Lookups;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Project;
@@ -61,7 +61,7 @@ public final class DependenciesNode extends AbstractNode {
      */
     public static Node createCompileDependenciesNode(
             String displayName, final Project project, Action... librariesNodeActions) {
-        DependenciesChildren children = new DependenciesChildren(project) {
+        DependenciesChildren children = new DependenciesChildren(project, JavaProjectConstants.SOURCES_TYPE_JAVA) {
             @Override
             protected void addLibraries(List<Key> result) {
                 final ClassPathProvider cpProvider = project.getLookup().lookup(ClassPathProvider.class);
@@ -93,7 +93,7 @@ public final class DependenciesNode extends AbstractNode {
 
     public static Node createTestDependenciesNode(
             String displayName, final Project project, Action... librariesNodeActions) {
-        DependenciesChildren children = new DependenciesChildren(project) {
+        DependenciesChildren children = new DependenciesChildren(project, NbGradleConstants.SOURCES_TYPE_TEST_JAVA) {
             @Override
             protected void addLibraries(List<Key> result) {
                 final ClassPathProvider cpProvider = project.getLookup().lookup(ClassPathProvider.class);
@@ -203,9 +203,11 @@ public final class DependenciesNode extends AbstractNode {
     private abstract static class DependenciesChildren extends Children.Keys<Key> implements PropertyChangeListener {
 
         private final Project project;
+        private final String sourceType;
 
-        DependenciesChildren(Project project) {
+        public DependenciesChildren(Project project, String sourceType) {
             this.project = project;
+            this.sourceType = sourceType;
         }
 
         @Override
@@ -221,10 +223,10 @@ public final class DependenciesNode extends AbstractNode {
 
         @Override
         protected void addNotify() {
-//      AndroidClassPath cpProvider = project.getLookup().lookup(AndroidClassPath.class);
-//      if (cpProvider != null) {
-//        cpProvider.getClassPath(ClassPath.COMPILE).addPropertyChangeListener(this);
-//      }
+            RegisteredClassPathProvider cpProvider = project.getLookup().lookup(RegisteredClassPathProvider.class);
+            if (cpProvider != null) {
+                cpProvider.findClassPath(sourceType, ClassPath.COMPILE).addPropertyChangeListener(this);
+            }
             this.setKeys(getKeys());
         }
 
