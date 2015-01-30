@@ -31,7 +31,7 @@ import org.openide.util.RequestProcessor;
         displayName = "#CTL_ImportGradleProjectAction"
 )
 @ActionReference(path = "Menu/File/Import", position = 1427)
-@Messages("CTL_ImportGradleProjectAction=Import Gradle Project ...")
+@Messages("CTL_ImportGradleProjectAction=Gradle Project ...")
 public final class ImportGradleProjectAction implements ActionListener {
     private static final RequestProcessor RP = new RequestProcessor("Gradle Importer");
 
