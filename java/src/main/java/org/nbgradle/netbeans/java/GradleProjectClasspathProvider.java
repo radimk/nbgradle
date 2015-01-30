@@ -149,7 +149,6 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         exported.setRootDirs(exportedLibs);
         LOG.log(Level.FINE, "Project {0} exports {1}", new Object[] {project, exported.srcDirs});
         imported.setImportedDependencies(importedPathResources);
-        LOG.log(Level.FINE, "Project {0} compile main full classpath {1}", new Object[] {project, Arrays.toString(compileMainCp.getRoots())});
     }
 
     @Override
@@ -293,11 +292,9 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         public URL[] getRoots() {
             List<URL> roots = Lists.newArrayList();
             for (PathResourceImplementation pri : importedDependencies) {
-                for (URL root : pri.getRoots()) {
-                    roots.add(root);
-                }
+                roots.addAll(Arrays.asList(pri.getRoots()));
             }
-            LOG.log(Level.INFO, "source roots in {0}/{1}: {2}", new Object[] {project, "exports", roots});
+            LOG.log(Level.FINER, "source roots in {0}/{1}: {2}", new Object[] {project, "exports", roots});
             return roots.toArray(new URL[0]);
         }
 
@@ -327,7 +324,7 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
                     LOG.log(Level.FINE, "claspath entry " + srcDir + " cannot be added", ex);
                 }
             }
-            LOG.log(Level.INFO, "source roots in {0}/{1}: {2}", new Object[] {project, group, roots});
+            LOG.log(Level.FINER, "source roots in {0}/{1}: {2}", new Object[] {project, group, roots});
             return roots.toArray(new URL[0]);
         }
 
