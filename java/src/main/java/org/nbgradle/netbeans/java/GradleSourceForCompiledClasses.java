@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.event.ChangeListener;
 import org.gradle.tooling.model.GradleProject;
+import org.nbgradle.netbeans.models.adapters.GradleProjectBridge;
 import org.nbgradle.netbeans.project.AbstractModelProducer;
 import org.nbgradle.netbeans.project.NbGradleConstants;
 import org.netbeans.api.annotations.common.NonNull;
@@ -37,7 +38,7 @@ public final class GradleSourceForCompiledClasses extends AbstractModelProducer<
     private final @NonNull Project project;
     private File buildDirectory;
     private File prjDirectory;
-    private LoadingCache<File, CompiledSourceResult> resultsCache = CacheBuilder.newBuilder().
+    private final LoadingCache<File, CompiledSourceResult> resultsCache = CacheBuilder.newBuilder().
             weakValues().build(new CacheLoader<File, CompiledSourceResult>() {
 
         @Override
@@ -57,10 +58,13 @@ public final class GradleSourceForCompiledClasses extends AbstractModelProducer<
             // maybe it is better to hold previous state.
             return;
         }
-        // TODO find our project first
-        buildDirectory = model.getBuildDirectory();
+        GradleProject currentGradleProject = new GradleProjectBridge(model).moduleForProject(project);
+        if (currentGradleProject == null) {
+            return;
+        }
+        buildDirectory = currentGradleProject.getBuildDirectory();
         // TODO this needs to be read from GradleBuild/BasicGradleProject
-        prjDirectory = model.getBuildDirectory().getParentFile();
+        prjDirectory = currentGradleProject.getBuildDirectory().getParentFile();
     }
 
     @Override

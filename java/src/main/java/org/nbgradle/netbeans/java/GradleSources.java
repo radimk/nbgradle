@@ -15,7 +15,7 @@ import org.gradle.tooling.model.idea.IdeaContentRoot;
 import org.gradle.tooling.model.idea.IdeaModule;
 import org.gradle.tooling.model.idea.IdeaProject;
 import org.gradle.tooling.model.idea.IdeaSourceDirectory;
-import org.nbgradle.netbeans.models.idea.IdeaModelHelper;
+import org.nbgradle.netbeans.models.adapters.IdeaModelBridge;
 import org.nbgradle.netbeans.project.AbstractModelProducer;
 import org.nbgradle.netbeans.project.ModelProcessor;
 import org.nbgradle.netbeans.project.NbGradleConstants;
@@ -78,7 +78,7 @@ public class GradleSources extends AbstractModelProducer<IdeaProject> implements
         if (model == null) {
             sourcesByType.clear();
         } else {
-            IdeaModule module = new IdeaModelHelper(model).moduleForProject(project);
+            IdeaModule module = new IdeaModelBridge(model).moduleForProject(project);
             if (module == null) {
                 LOG.log(Level.INFO, "No source group for {0}", project);
                 sourcesByType.clear();

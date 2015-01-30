@@ -1,6 +1,6 @@
 /*
  */
-package org.nbgradle.netbeans.models.idea;
+package org.nbgradle.netbeans.models.adapters;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -14,10 +14,10 @@ import org.netbeans.api.project.Project;
  *
  * @author radim
  */
-public class IdeaModelHelper {
+public class IdeaModelBridge {
     private final IdeaProject ideaModel;
 
-    public IdeaModelHelper(IdeaProject ideaModel) {
+    public IdeaModelBridge(IdeaProject ideaModel) {
         this.ideaModel = ideaModel;
     }
 

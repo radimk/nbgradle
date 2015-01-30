@@ -16,7 +16,7 @@ import org.gradle.tooling.model.idea.IdeaModule;
 import org.gradle.tooling.model.idea.IdeaProject;
 import org.gradle.tooling.model.idea.IdeaSingleEntryLibraryDependency;
 import org.gradle.tooling.model.idea.IdeaSourceDirectory;
-import org.nbgradle.netbeans.models.idea.IdeaModelHelper;
+import org.nbgradle.netbeans.models.adapters.IdeaModelBridge;
 import org.nbgradle.netbeans.project.AbstractModelProducer;
 import org.nbgradle.netbeans.project.NbGradleConstants;
 import org.netbeans.api.annotations.common.NonNull;
@@ -71,7 +71,7 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
             return;
         }
 
-        IdeaModule module = new IdeaModelHelper(ideaModel).moduleForProject(project);
+        IdeaModule module = new IdeaModelBridge(ideaModel).moduleForProject(project);
         if (module == null) {
             LOG.log(Level.INFO, "Cannot get classpath for this subproject");
             return;
