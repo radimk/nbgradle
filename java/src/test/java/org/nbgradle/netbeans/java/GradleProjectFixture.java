@@ -45,7 +45,7 @@ public class GradleProjectFixture {
      * Finds a sub-project in a Gradle build assuming that it can be imported.
      */
     public Project findSubProject(String relativePath) throws IOException {
-        FileObject projectDir = FileUtil.toFileObject(new File(dir, relativePath));
+        FileObject projectDir = FileUtil.toFileObject(FileUtil.normalizeFile(new File(dir, relativePath)));
         Project subProject = ProjectManager.getDefault().findProject(projectDir);
         if (subProject != null) {
             subProject.getLookup().lookup(ProjectLoadingHook.class).projectOpened();

@@ -54,6 +54,7 @@ public final class GradleSourceForCompiledClasses extends AbstractModelProducer<
 
     @Override
     protected void updateFromModel(GradleProject model) {
+        LOG.log(Level.FINE, "update from model {0}", project);
         if (model == null) {
             // maybe it is better to hold previous state.
             return;
@@ -65,6 +66,7 @@ public final class GradleSourceForCompiledClasses extends AbstractModelProducer<
         buildDirectory = currentGradleProject.getBuildDirectory();
         // TODO this needs to be read from GradleBuild/BasicGradleProject
         prjDirectory = currentGradleProject.getBuildDirectory().getParentFile();
+        LOG.log(Level.FINE, "update from model: build dir {0}, prj dir {1}", new Object[]{buildDirectory, prjDirectory});
     }
 
     @Override

@@ -2,7 +2,9 @@
  */
 package org.nbgradle.netbeans.java;
 
+import java.net.URL;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.spi.java.classpath.PathResourceImplementation;
 
 /**
  *
@@ -27,4 +29,9 @@ public interface RegisteredClassPathProvider {
      * @return classpath or null
      */
     ClassPath findClassPath(String sourceType, String type);
+
+    /**
+     * Classpath URLs exported for dependendent project in IDEA model.
+     */
+    PathResourceImplementation getExportedRoots();
 }

@@ -3,7 +3,7 @@ TODOs for Gradle support in NetBeans
 Core functionality
 
 - Multi-projects
-    - cross-dependencies
+    - project cross-dependencies
     - loading/opening/sharing models
 - Project settings to use VM args, Gradle distro
 - refresh/reload

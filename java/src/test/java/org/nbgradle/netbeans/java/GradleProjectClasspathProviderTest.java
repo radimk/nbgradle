@@ -71,6 +71,12 @@ public class GradleProjectClasspathProviderTest {
                 sharedProject.getProjectDirectory().getFileObject("build/classes/main"),
                 sharedProject.getProjectDirectory().getFileObject("build/resources/main")
         );
+
+        FileObject foApiSrcMainJava = apiProject.getProjectDirectory().getFileObject("src/main/java");
+        ClassPath apiMainCompileCp = ClassPath.getClassPath(foApiSrcMainJava, ClassPath.COMPILE);
+        assertThat(apiMainCompileCp.findResource("org/gradle/shared/Person.class")).isNotNull();
+        assertThat(apiMainCompileCp.findResource("org/gradle/shared/PersonTest.class")).isNull();
+        assertThat(apiMainCompileCp.findResource("org/apache/commons/lang/builder/ToStringBuilder.class")).isNotNull();
     }
 
     private static Iterable<FileObject> toDirectoryRoots(ClassPath cpRoots) {
