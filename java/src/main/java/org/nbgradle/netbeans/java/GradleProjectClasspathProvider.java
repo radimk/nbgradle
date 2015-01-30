@@ -71,7 +71,7 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
             return;
         }
 
-        IdeaModule module = new IdeaModelHelper(ideaModel).moduleForProject(":");
+        IdeaModule module = new IdeaModelHelper(ideaModel).moduleForProject(project);
         if (module == null) {
             LOG.log(Level.INFO, "Cannot get classpath for this subproject");
             return;

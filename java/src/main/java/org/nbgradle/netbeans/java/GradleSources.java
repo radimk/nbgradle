@@ -54,7 +54,8 @@ public class GradleSources extends AbstractModelProducer<IdeaProject> implements
     public SourceGroup[] getSourceGroups(String type) {
         if (type.equals(Sources.TYPE_GENERIC)) {
             ProjectInformation info = ProjectUtils.getInformation(project);
-            return new SourceGroup[]{GenericSources.group(project, project.getProjectDirectory(), info.getName(), info.getDisplayName(), null, null)};
+            return new SourceGroup[]{GenericSources.group(
+                    project, project.getProjectDirectory(), info.getName(), info.getDisplayName(), null, null)};
         } else {
             SourceGroup[] sgs = sourcesByType.get(type);
             return sgs != null ? sgs : new SourceGroup[0];
@@ -76,7 +77,7 @@ public class GradleSources extends AbstractModelProducer<IdeaProject> implements
         if (model == null) {
             sourcesByType.clear();
         } else {
-            IdeaModule module = new IdeaModelHelper(model).moduleForProject(":");
+            IdeaModule module = new IdeaModelHelper(model).moduleForProject(project);
             if (module == null) {
                 LOG.log(Level.INFO, "No source group for {0}", project);
                 sourcesByType.clear();
@@ -97,21 +98,25 @@ public class GradleSources extends AbstractModelProducer<IdeaProject> implements
             for (IdeaSourceDirectory ideaSrcDir : contentRoot.getSourceDirectories()) {
                 final String srcName = ideaSrcDir.getDirectory().getName();
                 if (!"resources".equals(srcName)) {
-                    groupsJava.add(GenericSources.group(project,
-                            FileUtil.toFileObject(ideaSrcDir.getDirectory()), srcName, "Source Packages " + srcName, null, null));
+                    groupsJava.add(GenericSources.group(
+                            project, FileUtil.toFileObject(ideaSrcDir.getDirectory()),
+                            srcName, "Source Packages " + srcName, null, null));
                 } else {
-                    groupsResources.add(GenericSources.group(project,
-                            FileUtil.toFileObject(ideaSrcDir.getDirectory()), srcName, "Resources", null, null));
+                    groupsResources.add(GenericSources.group(
+                            project, FileUtil.toFileObject(ideaSrcDir.getDirectory()),
+                            srcName, "Resources", null, null));
                 }
             }
             for (IdeaSourceDirectory ideaSrcDir : contentRoot.getTestDirectories()) {
                 final String srcName = ideaSrcDir.getDirectory().getName();
                 if (!"resources".equals(srcName)) {
-                    groupsTestJava.add(GenericSources.group(project,
-                            FileUtil.toFileObject(ideaSrcDir.getDirectory()), srcName, "Test Packages " + srcName, null, null));
+                    groupsTestJava.add(GenericSources.group(
+                            project, FileUtil.toFileObject(ideaSrcDir.getDirectory()),
+                            srcName, "Test Packages " + srcName, null, null));
                 } else {
-                    groupsTestResources.add(GenericSources.group(project,
-                            FileUtil.toFileObject(ideaSrcDir.getDirectory()), srcName, "Test Resources", null, null));
+                    groupsTestResources.add(GenericSources.group(
+                            project, FileUtil.toFileObject(ideaSrcDir.getDirectory()),
+                            srcName, "Test Resources", null, null));
                 }
             }
         }

@@ -22,10 +22,7 @@ public class GradleSourceForCompiledClassesTest {
     @Test
     @UsesSample("java/quickstart")
     public void quickstart() throws Exception {
-        Project project = new GradleProjectFixture(sample.getDir().toFile()).importAndFindProject();
-
-        project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
-        project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
+        Project project = new GradleProjectFixture(sample.getDir().toFile()).importAndFindRootProject();
 
         FileObject foSrcMainJava = project.getProjectDirectory().getFileObject("src/main/java");
         FileObject foSrcTestJava = project.getProjectDirectory().getFileObject("src/test/java");

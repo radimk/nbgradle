@@ -1,25 +1,19 @@
 package org.nbgradle.netbeans.java;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
-import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
 import org.nbgradle.test.fixtures.Sample;
 import org.nbgradle.test.fixtures.TestNameTestDirectoryProvider;
 import org.nbgradle.test.fixtures.UsesSample;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
-import java.io.IOException;
-import org.junit.Ignore;
-import org.nbgradle.netbeans.project.GradleProjectImporter;
-import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 
@@ -33,11 +27,9 @@ public class GradleProjectClasspathProviderTest {
     @Test
     @UsesSample("java/quickstart")
     public void quickstart() throws Exception {
-        Project project = new GradleProjectFixture(sample.getDir().toFile()).importAndFindProject();
+        Project project = new GradleProjectFixture(sample.getDir().toFile()).importAndFindRootProject();
 
         assertNotNull(project.getLookup().lookup(ClassPathProvider.class));
-        project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
-        project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
 
         FileObject foSrcMainJava = project.getProjectDirectory().getFileObject("src/main/java");
         FileObject foSrcTestJava = project.getProjectDirectory().getFileObject("src/test/java");
@@ -64,16 +56,30 @@ public class GradleProjectClasspathProviderTest {
     }
 
     @Test
-    @Ignore
     @UsesSample("java/multiproject")
     public void multiproject() throws Exception {
-        Project project = new GradleProjectFixture(sample.getDir().toFile()).importAndFindProject();
-        Project apiProject = new GradleProjectFixture(sample.getDir().resolve("api").toFile()).importAndFindProject();
-        Project sharedProject = new GradleProjectFixture(sample.getDir().resolve("shared").toFile()).importAndFindProject();
+        final GradleProjectFixture prjFixture = new GradleProjectFixture(sample.getDir().toFile());
+        Project project = prjFixture.importAndFindRootProject();
+        Project apiProject = prjFixture.findSubProject("api");
+        Project sharedProject = prjFixture.findSubProject("shared");
 
-        project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
-        project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
+        FileObject foSharedSrcTestJava = sharedProject.getProjectDirectory().getFileObject("src/test/java");
+        ClassPath sharedTestCompileCp = ClassPath.getClassPath(foSharedSrcTestJava, ClassPath.COMPILE);
+        assertThat(toArchiveRoots(sharedTestCompileCp)).extracting("nameExt").containsOnlyOnce("junit-4.11.jar", "hamcrest-core-1.3.jar");
+//        assertThat(toDirectoryRoots(sharedTestCompileCp)).containsOnlyOnce(
+//                sharedProject.getProjectDirectory().getFileObject("build/classes/main"),
+//                sharedProject.getProjectDirectory().getFileObject("build/resources/main")
+//        );
+    }
 
+    private static Iterable<FileObject> toDirectoryRoots(ClassPath cpRoots) {
+        return Iterables.filter(
+                Lists.newArrayList(cpRoots.getRoots()),
+                new Predicate<FileObject>() {
+                    @Override public boolean apply(FileObject input) {
+                        return input.isFolder();
+                    }
+                });
     }
 
     private static Iterable<FileObject> toArchiveRoots(ClassPath cpRoots) {

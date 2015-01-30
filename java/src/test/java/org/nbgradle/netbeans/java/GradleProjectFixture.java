@@ -3,6 +3,7 @@ package org.nbgradle.netbeans.java;
 import java.io.File;
 import java.io.IOException;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
+import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -22,7 +23,7 @@ public class GradleProjectFixture {
         this.dir = dir;
     }
 
-    public Project importAndFindProject() throws IOException {
+    public Project importAndFindRootProject() throws IOException {
         FileObject prjDirFo = FileUtil.toFileObject(FileUtil.normalizeFile(dir));
         DefaultGradleBuildSettings buildSettings = new DefaultGradleBuildSettings();
         GradleProjectImporter importer = new GradleProjectImporter();
@@ -31,6 +32,22 @@ public class GradleProjectFixture {
         ProjectManager.getDefault().clearNonProjectCache();
         Project project = ProjectManager.getDefault().findProject(prjDirFo);
         assertNotNull("Project in " + dir, project);
+
+        project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
+        project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
+        return project;
+    }
+
+    /**
+     * Finds a sub-project in a Gradle build assuming that it can be imported.
+     */
+    public Project findSubProject(String relativePath) throws IOException {
+        FileObject projectDir = FileUtil.toFileObject(new File(dir, relativePath));
+        Project project = ProjectManager.getDefault().findProject(projectDir);
+        if (project != null) {
+            project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
+            project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
+        }
         return project;
     }
 }
