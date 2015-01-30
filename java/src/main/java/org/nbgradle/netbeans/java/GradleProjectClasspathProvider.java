@@ -3,6 +3,8 @@ package org.nbgradle.netbeans.java;
 import org.nbgradle.netbeans.project.ModelProcessor;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -34,7 +36,6 @@ import org.netbeans.spi.java.classpath.ClassPathImplementation;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
-import org.netbeans.spi.java.classpath.support.CompositePathResourceBase;
 import org.netbeans.spi.java.classpath.support.PathResourceBase;
 import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.filesystems.FileObject;
@@ -262,23 +263,47 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
         }
     }
 
-    private class MergedPathResources extends CompositePathResourceBase {
+    private class MergedPathResources extends PathResourceBase {
         final ClassPath classpath;
         private Iterable<PathResourceImplementation> importedDependencies = Collections.emptyList();
+        private final PropertyChangeListener lsnr = new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                firePropertyChange(evt.getPropertyName(), null, null);
+            }
+        };
 
         public MergedPathResources() {
             classpath = ClassPathSupport.createClassPath(Collections.singletonList(this));
         }
 
-        @Override
-        protected ClassPathImplementation createContent() {
-            LOG.log(Level.INFO, "imported dependencies in {0}: {1}", new Object[] {project, importedDependencies});
-            return ClassPathSupport.createClassPathImplementation(Lists.newArrayList(importedDependencies));
+        public void setImportedDependencies(Iterable<PathResourceImplementation> importedDependencies) {
+            for (PathResourceImplementation pri : this.importedDependencies) {
+                pri.removePropertyChangeListener(lsnr);
+            }
+            this.importedDependencies = importedDependencies;
+            for (PathResourceImplementation pri : this.importedDependencies) {
+                pri.addPropertyChangeListener(lsnr);
+            }
+            firePropertyChange(PROP_ROOTS, null, null);
         }
 
-        public void setImportedDependencies(Iterable<PathResourceImplementation> importedDependencies) {
-            this.importedDependencies = importedDependencies;
-            firePropertyChange(PROP_ROOTS, null, null);
+        @Override
+        public URL[] getRoots() {
+            List<URL> roots = Lists.newArrayList();
+            for (PathResourceImplementation pri : importedDependencies) {
+                for (URL root : pri.getRoots()) {
+                    roots.add(root);
+                }
+            }
+            LOG.log(Level.INFO, "source roots in {0}/{1}: {2}", new Object[] {project, "exports", roots});
+            return roots.toArray(new URL[0]);
+        }
+
+        @Override
+        public ClassPathImplementation getContent() {
+            return null; // no-op
         }
     }
 
