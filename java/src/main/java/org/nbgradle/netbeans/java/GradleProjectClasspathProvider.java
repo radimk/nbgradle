@@ -198,15 +198,16 @@ public final class GradleProjectClasspathProvider extends AbstractModelProducer<
     }
 
     private void tryAddClassesDir(List<File> classesDirs, File srcDir) {
-        if (!"java".equals(srcDir.getName()) || srcDir.getParentFile() == null
+        if (srcDir.getParentFile() == null
                 || srcDir.getParentFile().getParentFile() == null
                 || !"src".equals(srcDir.getParentFile().getParentFile().getName())) {
             return;
         }
         String sourceSetName = srcDir.getParentFile().getName();
+        String sourceTypeName = "resources".equals(srcDir.getName()) ? "resources" : "classes";
         File classesDir = new File(
                 FileUtil.toFile(project.getProjectDirectory()),
-                "build" + File.separator + "classes" + File.separator + sourceSetName);
+                "build" + File.separator + sourceTypeName + File.separator + sourceSetName);
         classesDirs.add(classesDir);
     }
 

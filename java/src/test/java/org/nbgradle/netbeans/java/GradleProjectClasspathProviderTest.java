@@ -62,14 +62,15 @@ public class GradleProjectClasspathProviderTest {
         Project project = prjFixture.importAndFindRootProject();
         Project apiProject = prjFixture.findSubProject("api");
         Project sharedProject = prjFixture.findSubProject("shared");
+        prjFixture.build("build");
 
         FileObject foSharedSrcTestJava = sharedProject.getProjectDirectory().getFileObject("src/test/java");
         ClassPath sharedTestCompileCp = ClassPath.getClassPath(foSharedSrcTestJava, ClassPath.COMPILE);
         assertThat(toArchiveRoots(sharedTestCompileCp)).extracting("nameExt").containsOnlyOnce("junit-4.11.jar", "hamcrest-core-1.3.jar");
-//        assertThat(toDirectoryRoots(sharedTestCompileCp)).containsOnlyOnce(
-//                sharedProject.getProjectDirectory().getFileObject("build/classes/main"),
-//                sharedProject.getProjectDirectory().getFileObject("build/resources/main")
-//        );
+        assertThat(toDirectoryRoots(sharedTestCompileCp)).containsOnlyOnce(
+                sharedProject.getProjectDirectory().getFileObject("build/classes/main"),
+                sharedProject.getProjectDirectory().getFileObject("build/resources/main")
+        );
     }
 
     private static Iterable<FileObject> toDirectoryRoots(ClassPath cpRoots) {
