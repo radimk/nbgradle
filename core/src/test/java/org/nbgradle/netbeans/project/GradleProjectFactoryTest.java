@@ -73,9 +73,9 @@ public class GradleProjectFactoryTest {
         assertEquals(":api", project.getLookup().lookup(GradleProjectInformation.class).getProjectPath());
 
         // TODO enable when we recognize project dir without build.gradle
-//        FileObject sharedDir = prjDir.getFileObject("shared");
-//        project = ProjectManager.getDefault().findProject(sharedDir);
-//        assertNotNull(":shared in " + sharedDir, project);
-//        assertEquals(":shared", project.getLookup().lookup(GradleProjectInformation.class).getProjectPath());
+        FileObject sharedDir = prjDir.getFileObject("shared");
+        project = ProjectManager.getDefault().findProject(sharedDir);
+        assertNotNull(":shared in " + sharedDir, project);
+        assertEquals(":shared", project.getLookup().lookup(GradleProjectInformation.class).getProjectPath());
     }
 }

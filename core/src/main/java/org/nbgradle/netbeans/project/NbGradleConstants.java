@@ -5,6 +5,8 @@ public class NbGradleConstants {
     public static final String NBGRADLE_BUILD_XML = "nbgradlebuild.xml";
     /** Name of file to store project configuration. */
     public static final String NBGRADLE_XML = "nbgradle.xml";
+    /** File-attribute name to mark project directories.  The value is path to root project directory. */
+    public static final String NBGRADLE_PROJECT_DIR_ATTR = "isNbGradleProject";
 
     public static final String PROJECT_TYPE = "org-nbgradle-netbeans-project";
     public static final String BUILD_GRADLE_FILENAME = "build.gradle";

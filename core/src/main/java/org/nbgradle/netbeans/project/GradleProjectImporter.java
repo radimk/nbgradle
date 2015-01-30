@@ -21,8 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 public class GradleProjectImporter {
+    private static final Logger LOG = Logger.getLogger(GradleProjectImporter.class.getName());
 
     public static class ImportedData {
         public final ProjectInfoNode projectTree;
@@ -54,14 +59,35 @@ public class GradleProjectImporter {
                 gradleBuild.getRootProject(),
                 gradleBuildSettings.getDistributionSettings(),
                 Files.asByteSink(new File(projectDir, NbGradleConstants.NBGRADLE_BUILD_XML)));
+        markProjectDirectories(
+                gradleBuild.getRootProject(), gradleBuild.getRootProject().getProjectDirectory().getAbsolutePath());
     }
 
-    void writeProjectSettings(BasicGradleProject project, DistributionSettings distributionSettings, ByteSink byteSink) {
+    private void markProjectDirectories(BasicGradleProject gProject, String rootProjectPath) {
+        File projectDir = gProject.getProjectDirectory();
+        if (!new File(projectDir, NbGradleConstants.BUILD_GRADLE_FILENAME).exists() &
+                !new File(projectDir, NbGradleConstants.SETTINGS_GRADLE_FILENAME).exists() &&
+                !new File(projectDir, NbGradleConstants.NBGRADLE_BUILD_XML).exists()) {
+            FileObject projectDirFo = FileUtil.toFileObject(projectDir);
+            try {
+                projectDirFo.setAttribute(NbGradleConstants.NBGRADLE_PROJECT_DIR_ATTR, rootProjectPath);
+            } catch (IOException ex) {
+                LOG.log(Level.INFO, "Cannot mark " + projectDir.getAbsolutePath() + " as project directory", ex);
+            }
+        }
+        for (BasicGradleProject subProject : gProject.getChildren()) {
+            markProjectDirectories(subProject, rootProjectPath);
+        }
+    }
+
+    void writeProjectSettings(
+            BasicGradleProject project, DistributionSettings distributionSettings, ByteSink byteSink) {
         NbGradleBuildJAXB buildJaxb = new NbGradleBuildJAXB();
         buildJaxb.setRootProject(createProjectJAXB(project));
         buildJaxb.setDistribution(distributionSettings);
         try (OutputStream outputStream = byteSink.openStream()) {
-            JAXBContext context = JAXBContext.newInstance(NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
+            JAXBContext context = JAXBContext.newInstance(
+                    NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             m.marshal(buildJaxb, outputStream);
@@ -85,7 +111,8 @@ public class GradleProjectImporter {
 
     public ImportedData readBuildSettings(ByteSource byteSource) {
         try (InputStream is = byteSource.openStream()) {
-            JAXBContext context = JAXBContext.newInstance(NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
+            JAXBContext context = JAXBContext.newInstance(
+                    NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
             Unmarshaller um = context.createUnmarshaller();
             NbGradleBuildJAXB build = (NbGradleBuildJAXB) um.unmarshal(is);
             DefaultGradleBuildSettings settings = new DefaultGradleBuildSettings();

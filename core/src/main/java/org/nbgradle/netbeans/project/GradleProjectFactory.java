@@ -49,6 +49,13 @@ public class GradleProjectFactory implements ProjectFactory2 {
         if (projectDirectory.getFileObject(NbGradleConstants.BUILD_GRADLE_FILENAME) != null) {
             return findRootProjectDirectory(projectDirectory.getParent());
         }
+        Object markerAttr = projectDirectory.getAttribute(NbGradleConstants.NBGRADLE_PROJECT_DIR_ATTR);
+        if (markerAttr instanceof String) {
+            File rootProjectDir = new File((String) markerAttr);
+            if (rootProjectDir.exists()) {
+                return FileUtil.toFileObject(rootProjectDir);
+            }
+        }
         return null;
     }
 
