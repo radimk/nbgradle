@@ -49,7 +49,7 @@ dependencies {
 //    compile 'org.netbeans.api:org-netbeans-api-java-classpath:RELEASE80'
     compile 'org.netbeans.api:org-netbeans-api-progress:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-core-multiview:RELEASE80'
-//    compile 'org.netbeans.api:org-netbeans-modules-editor-indent-project:RELEASE80'
+    compile 'org.netbeans.api:org-netbeans-modules-editor-indent-project:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-modules-java-platform:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-modules-java-project:RELEASE80'
 //    compile 'org.netbeans.api:org-netbeans-modules-java-source:RELEASE80'
