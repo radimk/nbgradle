@@ -79,7 +79,9 @@ public class GradleProjectFactory implements ProjectFactory2 {
                 LOG.log(Level.FINE, "Cannot find project metadata.");
                 return null;
             }
-            return new NbGradleProject(gradleContext, projectDirectory, currentProject);
+            NbGradleProject nbGradleProject = new NbGradleProject(gradleContext, projectDirectory, currentProject);
+            nbGradleProject.loadGradleModels();
+            return nbGradleProject;
         } catch (ProjectImportException pie) {
             LOG.log(Level.FINE, "Cannot load project.", pie);
             return null;

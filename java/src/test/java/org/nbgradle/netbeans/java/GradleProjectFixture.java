@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import org.nbgradle.netbeans.models.GradleRunner;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
-import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
+import org.nbgradle.netbeans.project.NbGradleProject;
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -36,8 +36,7 @@ public class GradleProjectFixture {
         project = ProjectManager.getDefault().findProject(prjDirFo);
         assertNotNull("Project in " + dir, project);
 
-        project.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
-        project.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
+        project.getLookup().lookup(NbGradleProject.class).phaser.arriveAndAwaitAdvance();
         return project;
     }
 
@@ -48,8 +47,7 @@ public class GradleProjectFixture {
         FileObject projectDir = FileUtil.toFileObject(FileUtil.normalizeFile(new File(dir, relativePath)));
         Project subProject = ProjectManager.getDefault().findProject(projectDir);
         if (subProject != null) {
-            subProject.getLookup().lookup(ProjectLoadingHook.class).projectOpened();
-            subProject.getLookup().lookup(ProjectLoadingHook.class).phaser.arriveAndAwaitAdvance();
+            subProject.getLookup().lookup(NbGradleProject.class).phaser.arriveAndAwaitAdvance();
         }
         return subProject;
     }

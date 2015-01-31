@@ -1,5 +1,6 @@
 package org.nbgradle.netbeans.project;
 
+import java.util.concurrent.Phaser;
 import org.gradle.jarjar.com.google.common.base.Preconditions;
 import org.nbgradle.netbeans.project.lookup.DefaultGradleProjectInformation;
 import org.nbgradle.netbeans.project.lookup.NbSubprojectProvider;
@@ -22,6 +23,7 @@ public class NbGradleProject implements Project {
 
     private final FileObject projectDirectory;
     private final Lookup lookup;
+    public final Phaser phaser = new Phaser(1);
 
     public NbGradleProject(GradleContext gradleContext, FileObject projectDirectory, ProjectInfoNode currentProject) {
         this.projectDirectory = Preconditions.checkNotNull(projectDirectory);
@@ -40,9 +42,18 @@ public class NbGradleProject implements Project {
                 gradleContext.getModelProvider(),
                 new GradleLogicalViewProvider(this),
                 new ProjectCustomizerProvider(this),
-                new ProjectLoadingHook(this),
+                // new ProjectLoadingHook(this),
                 LookupProviderSupport.createActionProviderMerger());
         return LookupProviderSupport.createCompositeLookup(base, "Projects/" + NbGradleConstants.PROJECT_TYPE + "/Lookup");
+    }
+
+    public void loadGradleModels() {
+        LOG.log(Level.INFO, "Reloading Gradle models in project {0}", this);
+        for (ModelProcessor processor : getLookup().lookupAll(ModelProcessor.class)) {
+            LOG.log(Level.FINE, "Calling ModelProcessor {0} hook", processor);
+            processor.loadFromGradle(phaser);
+        }
+
     }
 
     @Override
