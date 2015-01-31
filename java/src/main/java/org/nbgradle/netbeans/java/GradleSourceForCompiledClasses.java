@@ -15,6 +15,7 @@ import org.gradle.tooling.model.GradleProject;
 import org.nbgradle.netbeans.models.adapters.GradleProjectBridge;
 import org.nbgradle.netbeans.project.AbstractModelProducer;
 import org.nbgradle.netbeans.project.NbGradleConstants;
+import org.nbgradle.netbeans.project.utils.IoUtils;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.netbeans.api.project.Project;
@@ -77,7 +78,7 @@ public final class GradleSourceForCompiledClasses extends AbstractModelProducer<
             return null;
         }
 
-        if (!isParentOrSame(buildDirectory, binaryRootFile) ||
+        if (!IoUtils.isParentOrSame(buildDirectory, binaryRootFile) ||
                 !new File(buildDirectory, "classes").equals(binaryRootFile.getParentFile())) {
             return null;
         }
@@ -93,15 +94,6 @@ public final class GradleSourceForCompiledClasses extends AbstractModelProducer<
     @Override
     public SourceForBinaryQuery.Result findSourceRoots(URL binaryRoot) {
         return findSourceRoots2(binaryRoot);
-    }
-
-    private static boolean isParentOrSame(File parent, File child) {
-        for (File current = child; current != null; current = current.getParentFile()) {
-            if (current.equals(parent)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static class CompiledSourceResult implements SourceForBinaryQueryImplementation2.Result {
