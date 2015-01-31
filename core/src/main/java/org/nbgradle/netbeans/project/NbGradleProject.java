@@ -17,6 +17,8 @@ import java.util.logging.Logger;
 import org.nbgradle.netbeans.models.GradleContext;
 import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 import org.nbgradle.netbeans.project.lookup.ProjectInfoNode;
+import org.nbgradle.netbeans.project.lookup.aux.AuxiliaryConfigImpl;
+import org.nbgradle.netbeans.project.lookup.aux.AuxiliaryPropertiesImpl;
 
 public class NbGradleProject implements Project {
     private static final Logger LOG = Logger.getLogger(NbGradleProject.class.getName());
@@ -42,6 +44,8 @@ public class NbGradleProject implements Project {
                 gradleContext.getModelProvider(),
                 new GradleLogicalViewProvider(this),
                 new ProjectCustomizerProvider(this),
+                new AuxiliaryConfigImpl(this),
+                new AuxiliaryPropertiesImpl(this),
                 // new ProjectLoadingHook(this),
                 LookupProviderSupport.createActionProviderMerger());
         return LookupProviderSupport.createCompositeLookup(base, "Projects/" + NbGradleConstants.PROJECT_TYPE + "/Lookup");
