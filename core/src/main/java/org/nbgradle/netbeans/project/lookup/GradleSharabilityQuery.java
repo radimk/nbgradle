@@ -13,6 +13,7 @@ import org.nbgradle.netbeans.models.adapters.GradleProjectBridge;
 import org.nbgradle.netbeans.project.AbstractModelProducer;
 import org.nbgradle.netbeans.project.ModelProcessor;
 import org.nbgradle.netbeans.project.NbGradleConstants;
+import org.nbgradle.netbeans.project.lookup.aux.AuxiliaryPropertiesImpl;
 import org.nbgradle.netbeans.project.utils.IoUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.queries.SharabilityQuery;
@@ -72,6 +73,13 @@ public final class GradleSharabilityQuery extends AbstractModelProducer<GradlePr
                         NbGradleConstants.SETTINGS_GRADLE_FILENAME.equals(file.getName())) {
                     return SharabilityQuery.Sharability.SHARABLE;
                 }
+            }
+            if (Objects.equals(new File(prjDir, "nbgradle"), file)) {
+                return SharabilityQuery.Sharability.MIXED;
+            } else if (Objects.equals(new File(prjDir, AuxiliaryPropertiesImpl.PRIVATE_PROPERTIES_PATH), file)) {
+                return SharabilityQuery.Sharability.NOT_SHARABLE;
+            } else if (Objects.equals(new File(prjDir, AuxiliaryPropertiesImpl.PROJECT_PROPERTIES_PATH), file)) {
+                return SharabilityQuery.Sharability.SHARABLE;
             }
         } catch (Exception ex) {
             LOG.log(Level.FINE, "Cannot convert uri to file to provide sharability: " + uri, ex);

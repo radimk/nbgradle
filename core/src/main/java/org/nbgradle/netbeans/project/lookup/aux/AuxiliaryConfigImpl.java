@@ -12,7 +12,6 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
@@ -28,7 +27,7 @@ public class AuxiliaryConfigImpl implements AuxiliaryConfiguration {
   private static final Logger LOG = Logger.getLogger(AuxiliaryConfigImpl.class.getName());
 
   static final String AUX_CONFIG_ATTR_BASE = AuxiliaryConfiguration.class.getName();
-  static final String AUX_CONFIG_FILENAME = ".netbeans.xml"; // NOI18N
+  public static final String AUX_CONFIG_FILENAME = ".netbeans.xml"; // NOI18N
   private final Project project;
 
   public AuxiliaryConfigImpl(Project proj) {
@@ -38,22 +37,18 @@ public class AuxiliaryConfigImpl implements AuxiliaryConfiguration {
   @Override
   public Element getConfigurationFragment(final String elementName, final String namespace, final boolean shared) {
     return ProjectManager.mutex().readAccess(new Mutex.Action<Element>() {
+      @Override
       public Element run() {
         assert project != null;
         FileObject dir = project.getProjectDirectory();
         if (shared) {
           FileObject config = dir.getFileObject(AUX_CONFIG_FILENAME);
           if (config != null) {
-            try {
-              InputStream is = config.getInputStream();
-              try {
-                InputSource input = new InputSource(is);
-                input.setSystemId(config.toURL().toString());
-                Element root = XMLUtil.parse(input, false, true, /*XXX*/ null, null).getDocumentElement();
-                return XMLUtil.findElement(root, elementName, namespace);
-              } finally {
-                is.close();
-              }
+            try (InputStream is = config.getInputStream()) {
+              InputSource input = new InputSource(is);
+              input.setSystemId(config.toURL().toString());
+              Element root = XMLUtil.parse(input, false, true, /*XXX*/ null, null).getDocumentElement();
+              return XMLUtil.findElement(root, elementName, namespace);
             } catch (Exception x) {
               LOG.log(Level.INFO, "Cannot parse" + config, x);
             }
@@ -68,10 +63,10 @@ public class AuxiliaryConfigImpl implements AuxiliaryConfiguration {
               if (elementName.equals(fragment.getLocalName()) && namespace.equals(fragment.getNamespaceURI())) {
                 return fragment;
               } else {
-                LOG.log(Level.INFO, "Value " + attr + " of " + attrName + " on " + dir + " has the wrong local name or namespace");
+                LOG.log(Level.INFO, "Value {0} of {1} on {2} has the wrong local name or namespace", new Object[]{attr, attrName, dir});
               }
             } catch (SAXException x) {
-              LOG.log(Level.INFO, "Cannot parse value " + attr + " of " + attrName + " on " + dir + ": " + x.getMessage());
+              LOG.log(Level.INFO, "Cannot parse value {0} of {1} on {2}: {3}", new Object[]{attr, attrName, dir, x.getMessage()});
             } catch (IOException x) {
               assert false : x;
             }
@@ -98,13 +93,10 @@ public class AuxiliaryConfigImpl implements AuxiliaryConfiguration {
             Document doc;
             FileObject config = dir.getFileObject(AUX_CONFIG_FILENAME);
             if (config != null) {
-              InputStream is = config.getInputStream();
-              try {
+              try (InputStream is = config.getInputStream()) {
                 InputSource input = new InputSource(is);
                 input.setSystemId(config.toURL().toString());
                 doc = XMLUtil.parse(input, false, true, /*XXX*/ null, null);
-              } finally {
-                is.close();
               }
             } else {
               config = dir.createData(AUX_CONFIG_FILENAME);
@@ -132,11 +124,8 @@ public class AuxiliaryConfigImpl implements AuxiliaryConfiguration {
               }
             }
             root.insertBefore(root.getOwnerDocument().importNode(fragment, true), ref);
-            OutputStream os = config.getOutputStream();
-            try {
+            try (OutputStream os = config.getOutputStream()) {
               XMLUtil.write(doc, os, "UTF-8");
-            } finally {
-              os.close();
             }
           } else {
             String attrName = AUX_CONFIG_ATTR_BASE + "." + namespace + "#" + elementName;
@@ -169,24 +158,18 @@ public class AuxiliaryConfigImpl implements AuxiliaryConfiguration {
         if (config != null) {
           try {
             Document doc;
-            InputStream is = config.getInputStream();
-            try {
+            try (InputStream is = config.getInputStream()) {
               InputSource input = new InputSource(is);
               input.setSystemId(config.toURL().toString());
               doc = XMLUtil.parse(input, false, true, /*XXX*/ null, null);
-            } finally {
-              is.close();
             }
             Element root = doc.getDocumentElement();
             Element toRemove = XMLUtil.findElement(root, elementName, namespace);
             if (toRemove != null) {
               root.removeChild(toRemove);
               if (root.getElementsByTagName("*").getLength() > 0) {
-                OutputStream os = config.getOutputStream();
-                try {
+                try (OutputStream os = config.getOutputStream()) {
                   XMLUtil.write(doc, os, "UTF-8");
-                } finally {
-                  os.close();
                 }
               } else {
                 config.delete();

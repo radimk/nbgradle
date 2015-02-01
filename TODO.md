@@ -10,7 +10,7 @@ Core functionality
 - Target JDK platform customization, show in project view
 - File encoding
 - Sharability query
-- Auxuliary config/properties; caches
+- caches
 - Binary <-> source <-> javadoc mapping in projects, repos, caches
 - .gradle files support
     - Groovy extending editor 
