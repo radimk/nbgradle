@@ -235,7 +235,10 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     public void attachData(DefaultGradleBuildSettings buildSettings) {
-        switch (buildSettings.getDistributionSettings().type) {
+        if (buildSettings.getDistributionSettings() == null) {
+            radioDefaultVersion.setSelected(true);
+        } else {
+            switch (buildSettings.getDistributionSettings().type) {
             case DEFAULT:
                 radioDefaultVersion.setSelected(true);
                 break;
@@ -253,9 +256,12 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
                 break;
             default:
                 throw new IllegalStateException("Unknown distribution type " + buildSettings.getDistributionSettings().type);
+            }
         }
         File gradleUserHomeDir = buildSettings.getGradleUserHomeDir();
         txtUserDir.setText(gradleUserHomeDir != null ? gradleUserHomeDir.getAbsolutePath() : "");
+        String jvmOptions = buildSettings.getJvmOptions();
+        txtVMOptions.setText(jvmOptions != null ? jvmOptions : "");
     }
 
     public void updateData(DefaultGradleBuildSettings buildSettings) {
@@ -278,5 +284,7 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
         }
         String userDir = txtUserDir.getText();
         buildSettings.setGradleUserHomeDir(Strings.isNullOrEmpty(userDir) ? null : new File(userDir));
+        String jvmOptions = txtVMOptions.getText();
+        buildSettings.setJvmOptions(Strings.isNullOrEmpty(jvmOptions) ? null : jvmOptions);
     }
 }

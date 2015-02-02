@@ -1,7 +1,7 @@
 package org.nbgradle.netbeans.project.model;
 
+import com.google.common.base.Preconditions;
 import org.nbgradle.netbeans.models.DistributionSpec;
-import org.nbgradle.netbeans.models.GradleBuildSettings;
 
 import java.io.File;
 
@@ -15,7 +15,7 @@ public class DefaultGradleBuildSettings implements NbGradleBuildSettings {
     }
 
     public void setDistributionSettings(DistributionSettings distributionSpec) {
-        this.distributionSettings = distributionSpec;
+        this.distributionSettings = Preconditions.checkNotNull(distributionSpec);
     }
 
     @Override

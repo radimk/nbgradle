@@ -112,7 +112,9 @@ public class GradleProjectImporter {
             Unmarshaller um = context.createUnmarshaller();
             NbGradleBuildJAXB build = (NbGradleBuildJAXB) um.unmarshal(is);
             DefaultGradleBuildSettings settings = new DefaultGradleBuildSettings();
-            settings.setDistributionSettings(build.getDistribution());
+            if (build.getDistribution() != null) {
+                settings.setDistributionSettings(build.getDistribution());
+            }
             settings.setJvmOptions(build.getJvmOptions());
 
             return new ImportedData(build.getRootProject(), settings);
