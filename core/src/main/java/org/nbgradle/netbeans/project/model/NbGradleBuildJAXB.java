@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class NbGradleBuildJAXB {
     private NbGradleProjectJAXB rootProject;
     private DistributionSettings distribution;
+    private String jvmOptions;
+    private String gradleUserDir;
 
     public DistributionSettings getDistribution() {
         return distribution;
@@ -13,6 +15,22 @@ public class NbGradleBuildJAXB {
 
     public void setDistribution(DistributionSettings distribution) {
         this.distribution = distribution;
+    }
+
+    public String getJvmOptions() {
+        return jvmOptions;
+    }
+
+    public void setJvmOptions(String jvmOptions) {
+        this.jvmOptions = jvmOptions;
+    }
+
+    public String getGradleUserDir() {
+        return gradleUserDir;
+    }
+
+    public void setGradleUserDir(String gradleUserDir) {
+        this.gradleUserDir = gradleUserDir;
     }
 
     public NbGradleProjectJAXB getRootProject() {

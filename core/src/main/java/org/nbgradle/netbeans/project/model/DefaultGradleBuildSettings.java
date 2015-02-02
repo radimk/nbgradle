@@ -8,6 +8,7 @@ import java.io.File;
 public class DefaultGradleBuildSettings implements NbGradleBuildSettings {
     private DistributionSettings distributionSettings;
     private File gradleUserHomeDir;
+    private String jvmOptions;
 
     public DefaultGradleBuildSettings() {
         distributionSettings = new DefaultDistributionSpec();
@@ -34,6 +35,15 @@ public class DefaultGradleBuildSettings implements NbGradleBuildSettings {
     @Override
     public File getGradleUserHomeDir() {
         return gradleUserHomeDir;
+    }
+
+    @Override
+    public String getJvmOptions() {
+        return jvmOptions;
+    }
+
+    public void setJvmOptions(String jvmOptions) {
+        this.jvmOptions = jvmOptions;
     }
 
     @Override

@@ -21,4 +21,7 @@ public interface GradleBuildSettings {
 
     @Nullable
     Integer getMaxDaemonIdleTimeoutMillis();
+
+    @Nullable
+    String getJvmOptions();
 }

@@ -52,7 +52,7 @@ public class GradleProjectImporter {
         }
         writeProjectSettings(
                 gradleBuild.getRootProject(),
-                gradleBuildSettings.getDistributionSettings(),
+                gradleBuildSettings,
                 Files.asByteSink(new File(projectDir, NbGradleConstants.NBGRADLE_BUILD_XML)));
         markProjectDirectories(
                 gradleBuild.getRootProject(), gradleBuild.getRootProject().getProjectDirectory().getAbsolutePath());
@@ -76,10 +76,11 @@ public class GradleProjectImporter {
     }
 
     void writeProjectSettings(
-            BasicGradleProject project, DistributionSettings distributionSettings, ByteSink byteSink) {
+            BasicGradleProject project, NbGradleBuildSettings buildSettings, ByteSink byteSink) {
         NbGradleBuildJAXB buildJaxb = new NbGradleBuildJAXB();
         buildJaxb.setRootProject(createProjectJAXB(project));
-        buildJaxb.setDistribution(distributionSettings);
+        buildJaxb.setDistribution(buildSettings.getDistributionSettings());
+        buildJaxb.setJvmOptions(buildSettings.getJvmOptions());
         try (OutputStream outputStream = byteSink.openStream()) {
             JAXBContext context = JAXBContext.newInstance(
                     NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
@@ -112,6 +113,7 @@ public class GradleProjectImporter {
             NbGradleBuildJAXB build = (NbGradleBuildJAXB) um.unmarshal(is);
             DefaultGradleBuildSettings settings = new DefaultGradleBuildSettings();
             settings.setDistributionSettings(build.getDistribution());
+            settings.setJvmOptions(build.getJvmOptions());
 
             return new ImportedData(build.getRootProject(), settings);
         } catch (JAXBException | IOException e) {

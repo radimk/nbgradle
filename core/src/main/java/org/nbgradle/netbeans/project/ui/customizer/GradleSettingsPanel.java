@@ -87,6 +87,7 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
         lblUserDir.setText("Gradle user home directory:");
 
         btnUserDir.setText("Select");
+        btnUserDir.addActionListener(formListener);
 
         lblVMOptions.setLabelFor(lblVMOptions);
         lblVMOptions.setText("Gradle VM options:");
@@ -181,6 +182,9 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
             else if (evt.getSource() == btnInstallLocation) {
                 GradleSettingsPanel.this.btnInstallLocationActionPerformed(evt);
             }
+            else if (evt.getSource() == btnUserDir) {
+                GradleSettingsPanel.this.btnUserDirActionPerformed(evt);
+            }
         }
     }// </editor-fold>//GEN-END:initComponents
 
@@ -198,6 +202,17 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
             txtInstallLocation.setText(gradleInstallDir.getAbsolutePath());
         }
     }//GEN-LAST:event_btnInstallLocationActionPerformed
+
+    private void btnUserDirActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnUserDirActionPerformed
+        File gradleInstallDir = new FileChooserBuilder(GradleSettingsPanel.class).
+                setDefaultWorkingDirectory(new File(System.getProperty("user.home"), ".gradle")).
+                setDirectoriesOnly(true).
+                setTitle("Gradle User Home Directory").
+                showOpenDialog();
+        if (gradleInstallDir != null) {
+            txtUserDir.setText(gradleInstallDir.getAbsolutePath());
+        }
+    }//GEN-LAST:event_btnUserDirActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

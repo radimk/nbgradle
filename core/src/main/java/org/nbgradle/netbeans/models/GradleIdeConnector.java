@@ -16,6 +16,7 @@ public class GradleIdeConnector implements IdeConnector {
         this.projectDir = projectDir;
     }
 
+    @Override
     public ProjectConnection getConnection() {
         return createConnection();
     }

@@ -10,6 +10,7 @@ import org.nbgradle.netbeans.models.GradleRunner
 import org.nbgradle.netbeans.models.ModelProvider
 import org.nbgradle.netbeans.project.lookup.ProjectInfoNode
 import org.nbgradle.netbeans.project.model.DefaultDistributionSpec
+import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings
 import org.openide.filesystems.FileObject
 import spock.lang.Specification
 
@@ -25,7 +26,7 @@ class AbstractProjectSpec extends Specification {
         _ * gradleProject.children >> children
         _ * children.all >> []
         def fbos = new FileBackedOutputStream(2048)
-        new GradleProjectImporter().writeProjectSettings(gradleProject, new DefaultDistributionSpec(), new ByteSink() {
+        new GradleProjectImporter().writeProjectSettings(gradleProject, new DefaultGradleBuildSettings(), new ByteSink() {
             @Override
             OutputStream openStream() throws IOException {
                 return fbos;

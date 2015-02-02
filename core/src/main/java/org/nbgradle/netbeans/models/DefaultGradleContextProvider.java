@@ -62,7 +62,7 @@ public class DefaultGradleContextProvider implements GradleContextProvider {
         public DefaultGradleContext(GradleBuildSettings buildSettings, ProjectInfoNode projectTreeInformation, GradleIdeConnector connector) {
             this.buildSettings = buildSettings;
             this.projectTreeInformation = projectTreeInformation;
-            runner = new DefaultGradleToolingRunner(connector, new NbGradleOperationCustomizer());
+            runner = new DefaultGradleToolingRunner(connector, new NbGradleOperationCustomizer(buildSettings));
             defaultModelProvider = new DefaultModelProvider(runner);
         }
 
