@@ -17,7 +17,9 @@ import javax.swing.LayoutStyle;
 import com.google.common.base.Strings;
 import org.nbgradle.netbeans.project.model.DefaultDistributionSpec;
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
+import org.nbgradle.netbeans.project.model.InstallationDistributionSpec;
 import org.nbgradle.netbeans.project.model.VersionDistributionSpec;
+import org.openide.filesystems.FileChooserBuilder;
 
 /**
  *
@@ -70,6 +72,7 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
         radioInstalledVersion.setText("Local installation:");
 
         btnInstallLocation.setText("Select");
+        btnInstallLocation.addActionListener(formListener);
 
         buttonGroup1.add(radioVersion);
         radioVersion.setText("Version:");
@@ -93,8 +96,7 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
 
         GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -135,8 +137,7 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
                         .addComponent(scrollVMOptions, GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblGradleVersion)
@@ -176,12 +177,26 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
             if (evt.getSource() == radioDefaultVersion) {
                 GradleSettingsPanel.this.radioDefaultVersionActionPerformed(evt);
             }
+            else if (evt.getSource() == btnInstallLocation) {
+                GradleSettingsPanel.this.btnInstallLocationActionPerformed(evt);
+            }
         }
     }// </editor-fold>//GEN-END:initComponents
 
     private void radioDefaultVersionActionPerformed(ActionEvent evt) {//GEN-FIRST:event_radioDefaultVersionActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_radioDefaultVersionActionPerformed
+
+    private void btnInstallLocationActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnInstallLocationActionPerformed
+        File gradleInstallDir = new FileChooserBuilder(GradleSettingsPanel.class).
+                setDefaultWorkingDirectory(new File(System.getProperty("user.home"))).
+                setDirectoriesOnly(true).
+                setTitle("Gradle Installation Directory").
+                showOpenDialog();
+        if (gradleInstallDir != null) {
+            txtInstallLocation.setText(gradleInstallDir.getAbsolutePath());
+        }
+    }//GEN-LAST:event_btnInstallLocationActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -231,8 +246,9 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
         if (radioDefaultVersion.isSelected()) {
             buildSettings.setDistributionSettings(new DefaultDistributionSpec());
         } else if (radioInstalledVersion.isSelected()) {
-            throw new UnsupportedOperationException("TODO");
-            // buildSettings.setDistributionSettings();
+            InstallationDistributionSpec spec = new InstallationDistributionSpec();
+            spec.setValue(txtInstallLocation.getText());
+            buildSettings.setDistributionSettings(spec);
         } else if (radioVersion.isSelected()) {
             VersionDistributionSpec spec = new VersionDistributionSpec();
             spec.setValue((String) cbxVersion.getSelectedItem());
