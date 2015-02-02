@@ -5,7 +5,6 @@ import com.google.common.io.ByteSink;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import org.nbgradle.netbeans.models.GradleBuildSettings;
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
@@ -23,6 +22,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.nbgradle.netbeans.models.GradleIdeConnector;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -40,13 +40,8 @@ public class GradleProjectImporter {
     }
 
     public void importProject(NbGradleBuildSettings gradleBuildSettings, File projectDir) {
-        GradleConnector connector = GradleConnector.newConnector()
-                .forProjectDirectory(projectDir);
-        gradleBuildSettings.getDistributionSpec().process(connector);
-        if (gradleBuildSettings.getGradleUserHomeDir() != null) {
-            connector.useGradleUserHomeDir(gradleBuildSettings.getGradleUserHomeDir());
-        }
-        ProjectConnection connection = connector.connect();
+        GradleIdeConnector ideConnector = new GradleIdeConnector(gradleBuildSettings, projectDir);
+        ProjectConnection connection = ideConnector.getConnection();
         GradleBuild gradleBuild = connection.getModel(GradleBuild.class);
         try {
             if (!gradleBuild.getRootProject().getProjectDirectory().equals(projectDir.getCanonicalFile())) {
