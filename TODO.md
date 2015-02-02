@@ -5,7 +5,6 @@ Core functionality
 - Multi-projects
     - project cross-dependencies
     - loading/opening/sharing models
-- Project settings to use VM args, Gradle distro
 - refresh/reload
 - Target JDK platform customization, show in project view
 - File encoding
