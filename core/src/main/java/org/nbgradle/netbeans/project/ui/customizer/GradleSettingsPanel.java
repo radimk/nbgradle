@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 import org.nbgradle.netbeans.project.model.DefaultDistributionSpec;
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
 import org.nbgradle.netbeans.project.model.InstallationDistributionSpec;
+import org.nbgradle.netbeans.project.model.URIDistributionSpec;
 import org.nbgradle.netbeans.project.model.VersionDistributionSpec;
 import org.openide.filesystems.FileChooserBuilder;
 
@@ -254,8 +255,9 @@ public class GradleSettingsPanel extends javax.swing.JPanel {
             spec.setValue((String) cbxVersion.getSelectedItem());
             buildSettings.setDistributionSettings(spec);
         } else if (radioURIVersion.isSelected()) {
-            throw new UnsupportedOperationException("TODO");
-            // buildSettings.setDistributionSettings();
+            URIDistributionSpec spec = new URIDistributionSpec();
+            spec.setValue(txtURIVersion.getText());
+            buildSettings.setDistributionSettings(spec);
         } else {
             throw new IllegalStateException("Cannot set Gradle distribution.");
         }
