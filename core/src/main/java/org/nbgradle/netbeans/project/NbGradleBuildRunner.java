@@ -4,11 +4,8 @@ import com.google.common.collect.Iterables;
 import org.nbgradle.netbeans.models.GradleRunner;
 import org.gradle.api.Action;
 import org.gradle.tooling.*;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

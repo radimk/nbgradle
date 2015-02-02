@@ -81,6 +81,8 @@ public class GradleProjectImporter {
         buildJaxb.setRootProject(createProjectJAXB(project));
         buildJaxb.setDistribution(buildSettings.getDistributionSettings());
         buildJaxb.setJvmOptions(buildSettings.getJvmOptions());
+        buildJaxb.setGradleUserDir(buildSettings.getGradleUserHomeDir() != null ?
+                buildSettings.getGradleUserHomeDir().getAbsolutePath(): null);
         try (OutputStream outputStream = byteSink.openStream()) {
             JAXBContext context = JAXBContext.newInstance(
                     NbGradleBuildJAXB.class, DefaultDistributionSpec.class, VersionDistributionSpec.class);
@@ -116,6 +118,10 @@ public class GradleProjectImporter {
                 settings.setDistributionSettings(build.getDistribution());
             }
             settings.setJvmOptions(build.getJvmOptions());
+            String userHomeDir = build.getGradleUserDir();
+            if (userHomeDir != null) {
+                settings.setGradleUserHomeDir(new File(userHomeDir));
+            }
 
             return new ImportedData(build.getRootProject(), settings);
         } catch (JAXBException | IOException e) {
