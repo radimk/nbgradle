@@ -4,16 +4,13 @@ import com.google.common.base.Preconditions;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import org.nbgradle.netbeans.project.GradleProjectImporter;
 
 import org.nbgradle.netbeans.project.NbGradleConstants;
-import org.nbgradle.netbeans.project.NbGradleProject;
 import org.nbgradle.netbeans.project.model.DefaultGradleBuildSettings;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer.Category;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 
