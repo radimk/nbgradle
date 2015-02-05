@@ -33,9 +33,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.nbgradle.netbeans.project.actions.DefaultTaskMappings;
+import org.nbgradle.netbeans.project.actions.TaskMappingForAction;
 
 public class GradleActionProvider implements ActionProvider {
     private static final Logger LOGGER = Logger.getLogger(GradleActionProvider.class.getName());
@@ -55,23 +58,26 @@ public class GradleActionProvider implements ActionProvider {
     private final GradleProjectInformation projectInfo;
     private final ModelProvider modelSupplier;
     private final GradleRunner toolingRunner;
+    private final Map<String, TaskMappingForAction> actionMappings;
 
     public GradleActionProvider(GradleProjectInformation projectInfo, ModelProvider modelSupplier, GradleRunner toolingRunner) {
         this.projectInfo = Preconditions.checkNotNull(projectInfo);
         this.modelSupplier = Preconditions.checkNotNull(modelSupplier);
         this.toolingRunner = Preconditions.checkNotNull(toolingRunner);
+        // TODO needs to be customizable
+        actionMappings = DefaultTaskMappings.forProject(projectInfo.getProjectPath());
     }
 
     @Override
     public String[] getSupportedActions() {
         return new String[] {
                 COMMAND_BUILD,
-                COMMAND_CLEAN
+                COMMAND_CLEAN,
+                COMMAND_TEST
 //                COMMAND_REBUILD,
 //                COMMAND_RUN,
 //                COMMAND_DEBUG,
 //        JavaProjectConstants.COMMAND_JAVADOC,
-//      COMMAND_TEST,
 //                COMMAND_DELETE,
 //                COMMAND_COPY,
 //                COMMAND_MOVE,
@@ -81,21 +87,21 @@ public class GradleActionProvider implements ActionProvider {
 
     @Override
     public void invokeAction(String command, Lookup context) throws IllegalArgumentException {
-        final Iterable<String> taskNames = taskNames(command, context);
-        if (taskNames == null) {
+        TaskMappingForAction taskMapping = taskMapping(command, context);
+        if (taskMapping == null) {
             LOGGER.log(Level.FINE, "invokeAction with no task to run {0}", command);
             return;
         }
-        new NbGradleBuildRunner(toolingRunner).execute(new NbGradleLaunchSpec(taskNames));
+        new NbGradleBuildRunner(toolingRunner).execute(new NbGradleLaunchSpec(taskMapping));
     }
 
     @Override
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
-        return taskNames(command, context) != null;
+        return taskMapping(command, context) != null;
     }
 
     @Nullable
-    Iterable<String> taskNames(String command, Lookup context) {
+    TaskMappingForAction taskMapping(String command, Lookup context) {
         BuildInvocations tasks = null;
         try {
             tasks = modelSupplier.getModel(BuildInvocations.class).get();
@@ -106,30 +112,32 @@ public class GradleActionProvider implements ActionProvider {
             return null;
         }
         // TODO utility to find project
-        if (COMMAND_BUILD.equals(command) && Iterables.any(tasks.getTasks(), matchesTaskName(projectInfo.getProjectPath(), "build"))) {
-            return Collections.singletonList("build");
+        // TODO vm args and options
+        TaskMappingForAction action = actionMappings.get(command);
+        if (action != null && Iterables.any(tasks.getTasks(), matchesTaskName(action.getTaskName()))) {
+            return action;
         }
         return null;
     }
 
-    private static Predicate<Task> matchesTaskName(final String projectPath, final String taskName) {
+    private static Predicate<Task> matchesTaskName(final String taskName) {
         return new Predicate<Task>() {
             @Override
             public boolean apply(Task input) {
-                return input.getPath().equals((":".equals(projectPath) ? ":" : projectPath + ":") + taskName);
+                return input.getPath().equals(taskName);
             }
         };
     }
 
     private class NbGradleLaunchSpec implements GradleLaunchSpec {
-        private final Iterable<String> taskNames;
+        private final TaskMappingForAction taskMapping;
         private final String title;
         private final InputOutput io;
         private final IOToStreamsAdapter streams;
         private final NbBuildProgressMonitor progress;
 
-        public NbGradleLaunchSpec(Iterable<String> taskNames) {
-            this.taskNames = taskNames;
+        public NbGradleLaunchSpec(TaskMappingForAction taskMapping) {
+            this.taskMapping = Preconditions.checkNotNull(taskMapping);
             IOProvider ioProvider = IOProvider.getDefault();
             title = projectInfo.getName() + " (" + Joiner.on(',').join(getTaskNames()) + ")";
             progress = new NbBuildProgressMonitor(title);
@@ -144,7 +152,7 @@ public class GradleActionProvider implements ActionProvider {
 
         @Override
         public final Iterable<String> getTaskNames() {
-            return taskNames;
+            return Collections.singleton(taskMapping.getTaskName());
         }
 
         @Override

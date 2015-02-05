@@ -46,8 +46,8 @@ class GradleActionProviderSpec extends AbstractProjectSpec {
 
         when:
         2 * modelSupplier.getModel(BuildInvocations) >> Futures.immediateFuture(emptyBuild)
-        _ * emptyBuild.tasks >> tasks
-        1 * tasks.iterator() >> [].iterator()
+        2 * emptyBuild.tasks >> tasks
+        2 * tasks.iterator() >> [].iterator()
 
         then:
         !actionProvider.isActionEnabled(ActionProvider.COMMAND_BUILD, Lookup.EMPTY)
@@ -57,7 +57,7 @@ class GradleActionProviderSpec extends AbstractProjectSpec {
         1 * modelSupplier.getModel(BuildInvocations) >> Futures.immediateFuture(aBuild)
         1 * aBuild.tasks >> tasks
         1 * tasks.iterator() >> [buildTask].iterator()
-        _ * buildTask.path >> ":build"
+        1 * buildTask.path >> ":assemble"
 
         then:
         actionProvider.isActionEnabled(ActionProvider.COMMAND_BUILD, Lookup.EMPTY)
