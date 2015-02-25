@@ -1,11 +1,16 @@
+plugins {
+    id "de.undercouch.download" version "1.2"
+}
 apply plugin: 'idea'
 
-task downloadGradle(type: DownloadTask) {
-    sourceUrl = 'https://services.gradle.org/distributions/gradle-2.2-rc-1-all.zip'
-    target = file('gradle-2.2-rc-1-all.zip')
+import de.undercouch.gradle.tasks.download.Download
+
+task downloadGradle(type: Download) {
+    src 'https://services.gradle.org/distributions/gradle-2.3-all.zip'
+    dest file('gradle-2.3-all.zip')
 }
 task unzipGradle(type: Copy) {
-    def zipFile = downloadGradle.target
+    def zipFile = downloadGradle.dest
     destinationDir = file('unpacked/gradle-dist')
 
     from zipTree(zipFile)
@@ -18,12 +23,12 @@ task testSetup(type: DefaultTask) {
     dependsOn 'unzipGradle'
 }
 
-task downloadNetBeans(type: DownloadTask) {
-    sourceUrl = 'http://dlc.sun.com.edgesuite.net/netbeans/8.0/final/zip/netbeans-8.0-201403101706.zip'
-    target = file('netbeans-8.0.zip')
+task downloadNetBeans(type: Download) {
+    src 'http://dlc.sun.com.edgesuite.net/netbeans/8.0/final/zip/netbeans-8.0-201403101706.zip'
+    dest file('netbeans-8.0.zip')
 }
 task unzipNetBeans(type: Copy) {
-    def zipFile = downloadNetBeans.target
+    def zipFile = downloadNetBeans.dest
     destinationDir = file('unpacked/netbeans')
 
     from zipTree(zipFile)

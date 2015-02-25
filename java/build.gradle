@@ -75,7 +75,7 @@ dependencies {
 //    providedCompile 'org.netbeans.api:org-netbeans-libs-javacapi:RELEASE80'
     // provided from :core, can rely on transitivity
     providedCompile 'org.slf4j:slf4j-api:1.7.5'
-    providedCompile 'org.gradle:gradle-tooling-api:2.2-rc-1'
+    providedCompile 'org.gradle:gradle-tooling-api:2.3'
     providedCompile 'com.google.guava:guava:17.0'
     providedCompile 'commons-io:commons-io:2.4'
 
