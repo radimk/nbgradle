@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.nbgradle.netbeans.project.lookup.aux;
+package org.nbgradle.netbeans.project.lookup.auxiliary;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

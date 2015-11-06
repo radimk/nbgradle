@@ -15,10 +15,9 @@ import org.openide.util.lookup.Lookups;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.nbgradle.netbeans.models.GradleContext;
-import org.nbgradle.netbeans.project.lookup.ProjectLoadingHook;
 import org.nbgradle.netbeans.project.lookup.ProjectInfoNode;
-import org.nbgradle.netbeans.project.lookup.aux.AuxiliaryConfigImpl;
-import org.nbgradle.netbeans.project.lookup.aux.AuxiliaryPropertiesImpl;
+import org.nbgradle.netbeans.project.lookup.auxiliary.AuxiliaryConfigImpl;
+import org.nbgradle.netbeans.project.lookup.auxiliary.AuxiliaryPropertiesImpl;
 
 public class NbGradleProject implements Project {
     private static final Logger LOG = Logger.getLogger(NbGradleProject.class.getName());

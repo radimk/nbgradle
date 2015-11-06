@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.nbgradle.netbeans.project.lookup.aux;
+package org.nbgradle.netbeans.project.lookup.auxiliary;
 
 import java.io.IOException;
 import javax.swing.SwingUtilities;

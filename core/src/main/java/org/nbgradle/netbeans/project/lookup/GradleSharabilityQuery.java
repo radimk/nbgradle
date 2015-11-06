@@ -13,7 +13,7 @@ import org.nbgradle.netbeans.models.adapters.GradleProjectBridge;
 import org.nbgradle.netbeans.project.AbstractModelProducer;
 import org.nbgradle.netbeans.project.ModelProcessor;
 import org.nbgradle.netbeans.project.NbGradleConstants;
-import org.nbgradle.netbeans.project.lookup.aux.AuxiliaryPropertiesImpl;
+import org.nbgradle.netbeans.project.lookup.auxiliary.AuxiliaryPropertiesImpl;
 import org.nbgradle.netbeans.project.utils.IoUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.queries.SharabilityQuery;

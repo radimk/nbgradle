@@ -13,7 +13,7 @@ public class IntegrationTestBuildContext {
     }
 
     public Path getSamplesDir() {
-        return file("integTest.samplesdir", String.format("%s/gradle-2.2-rc-1/samples", getGradleHomeDir()));
+        return file("integTest.samplesdir", String.format("%s/gradle-2.3/samples", getGradleHomeDir()));
     }
 
 //    public Path getLibsRepo() {
