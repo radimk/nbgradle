@@ -1,5 +1,5 @@
 plugins {
-    id "de.undercouch.download" version "1.2"
+    id "de.undercouch.download" version "2.0.0"
 }
 apply plugin: 'idea'
 
@@ -8,6 +8,7 @@ import de.undercouch.gradle.tasks.download.Download
 task downloadGradle(type: Download) {
     src 'https://services.gradle.org/distributions/gradle-2.3-all.zip'
     dest file('gradle-2.3-all.zip')
+    overwrite false
 }
 task unzipGradle(type: Copy) {
     def zipFile = downloadGradle.dest
@@ -24,8 +25,9 @@ task testSetup(type: DefaultTask) {
 }
 
 task downloadNetBeans(type: Download) {
-    src 'http://dlc.sun.com.edgesuite.net/netbeans/8.0/final/zip/netbeans-8.0-201403101706.zip'
-    dest file('netbeans-8.0.zip')
+    src 'http://download.netbeans.org/netbeans/8.1/final/zip/netbeans-8.1-201510222201.zip'
+    dest file('netbeans-8.1.zip')
+    overwrite false
 }
 task unzipNetBeans(type: Copy) {
     def zipFile = downloadNetBeans.dest
